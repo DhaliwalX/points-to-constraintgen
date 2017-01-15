@@ -9,6 +9,8 @@
 
 namespace pass {
 
+class PointerInformation;
+
 class Constraint {
 public:
     Constraint(Variable *lhs, Variable *rhs, llvm::Instruction *instruction)
@@ -43,6 +45,13 @@ public:
 private:
     void processRHS();
     void processLHS();
+    void processNode(ptrdiff_t &offset,
+                    ptrdiff_t &pointer_arithematic,
+                    ptrdiff_t &actual_offset,
+                    PointerType &type,
+                    std::string &name,
+                    bool &offset_calculated,
+                    PointerInfo *info);
 
     Variable *lhs_;
     Variable *rhs_;
