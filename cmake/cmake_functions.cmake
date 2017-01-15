@@ -6,7 +6,7 @@ function(run_opt testfile)
     string(REPLACE -generated "" test_target ${test_target})
     add_custom_command(
         OUTPUT output-${test_target}
-        COMMAND opt ${opt_current_flags}
+        COMMAND opt ${opt_current_flags} > /dev/null
         DEPENDS constraintgen ${testfile}
         COMMENT "Running opt on ${testfile}"
     )

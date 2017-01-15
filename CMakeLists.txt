@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 find_package(LLVM CONFIG REQUIRED)
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 include(LLVMConfig)
-include(cmake_functions.cmake)
+include(cmake/cmake_functions.cmake)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_ROOT}/lib/cmake/llvm")
