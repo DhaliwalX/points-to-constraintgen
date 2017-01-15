@@ -26,10 +26,23 @@ struct ConstraintGen : public FunctionPass {
 
     void processType1StoreInstruction(Value *pointerOperand,
             Value *valueOperand, Instruction *instruction) {
+        auto info = generateInformation(valueOperand);
+
+        if (info == nullptr) {
+            errs() << "Instruction ";
+            instruction->dump();
+        }
+        
         Variable *rhs = new Variable(valueOperand->getName(), valueOperand,
-            generateInformation(valueOperand), true);
+            info, true);
+
+        info = generateInformation(pointerOperand);
+        if (info == nullptr) {
+            errs() << "Instruction ";
+            instruction->dump();
+        }
         Variable *lhs = new Variable(pointerOperand->getName(), pointerOperand,
-            generateInformation(pointerOperand), false);
+            info, false);
 
         constraints_.push_back(new Constraint(lhs, rhs, instruction));
     }
@@ -48,6 +61,12 @@ struct ConstraintGen : public FunctionPass {
             } else if (isa<AllocaInst>(currentNode)) {
                 information.push_back(currentNode);
                 break;
+            } else if (isa<Argument>(currentNode)) {
+                information.push_back(currentNode);
+                break;
+            } else if (isa<CastInst>(currentNode)) {
+                information.push_back(currentNode);
+                currentNode = dyn_cast<Instruction>(currentNode)->getOperand(0);
             } else {
                 errs() << "Should not be here. Don't know how to process this"
                         << " instruction: ";
@@ -58,6 +77,7 @@ struct ConstraintGen : public FunctionPass {
                     value->dump();
                 }
                 errs() << "\n-------------------\n";
+                return nullptr;
             }
         }
         return new PointerInfo(information);
