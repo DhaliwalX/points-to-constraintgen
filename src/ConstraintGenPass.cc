@@ -67,6 +67,9 @@ struct ConstraintGen : public FunctionPass {
             } else if (isa<CastInst>(currentNode)) {
                 information.push_back(currentNode);
                 currentNode = dyn_cast<Instruction>(currentNode)->getOperand(0);
+            } else if (isa<CallInst>(currentNode)) {
+                information.push_back(currentNode);
+                break;
             } else {
                 errs() << "Should not be here. Don't know how to process this"
                         << " instruction: ";
@@ -87,7 +90,7 @@ struct ConstraintGen : public FunctionPass {
         auto pointerOperand = instruction.getPointerOperand();
         auto valueOperand = instruction.getValueOperand();
 
-        // we only process those Variable instructions which don't have pointer type
+        // we only process those Variable instructions which have pointer type
         if (!pointerOperand->getType()->getContainedType(0)->isPointerTy())
             return;
         processType1StoreInstruction(pointerOperand, valueOperand, &instruction);
