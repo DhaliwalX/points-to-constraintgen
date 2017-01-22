@@ -31,12 +31,11 @@ public:
     llvm::Instruction *&instruction() { return instruction_; }
 
     void dump() {
-        llvm::errs() << "-------- CONSTRAINT ---------\n";
-        llvm::errs() << "IR\n";
-        instruction_->dump();
+        llvm::errs() << "\e[1m";
         lhs_->dump();
         llvm::errs() << " = ";
         rhs_->dump();
+        llvm::errs() << "\e[0m";
         llvm::errs() << "\n";
     }
 
@@ -51,7 +50,8 @@ private:
                     PointerType &type,
                     std::string &name,
                     bool &offset_calculated,
-                    PointerInfo *info);
+                    PointerInfo *info,
+                    bool lhs);
 
     Variable *lhs_;
     Variable *rhs_;
