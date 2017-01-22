@@ -47,7 +47,8 @@ void Constraint::processNode(ptrdiff_t &offset,
                             PointerType &type,
                             std::string &name,
                             bool &offset_calculated,
-                            PointerInfo *info) {
+                            PointerInfo *info,
+                            bool lhs) {
     
     if (info == nullptr) {
         errs() << "Unable to generate information for: " << name << "\n";
@@ -100,6 +101,8 @@ void Constraint::processNode(ptrdiff_t &offset,
                 name = name + std::string("[")
                             + std::string((*beg)->getName().str()) + std::string("]");
             actual_offset += getFullOffset(gepinstr);
+        } else if (auto loadinstr = dyn_cast<LoadInst>(val)) {
+            type = lhs ? PointerType::kStar : PointerType::kAmpersand;
         }
         ++beg;
     }
@@ -127,7 +130,7 @@ void Constraint::processLHS() {
         pointer_arithematic = 0;
     } else {
         processNode(offset, pointer_arithematic, actual_offset,
-                    type, name, offset_calculated, info);
+                    type, name, offset_calculated, info, true);
     }
 
 
@@ -162,7 +165,7 @@ void Constraint::processRHS() {
         pointer_arithematic = 0;     
     } else {
         processNode(offset, pointer_arithematic, actual_offset,
-                    type, name, offset_calculated, info);
+                    type, name, offset_calculated, info, false);
     }
 
 
