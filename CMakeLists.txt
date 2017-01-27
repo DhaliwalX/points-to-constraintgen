@@ -10,7 +10,11 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_ROOT}/lib/cmake/llvm")
 message(STATUS "Looking for LLVM cmake modules: ${LLVM_ROOT}/lib/cmake/llvm")
 
 add_library(constraintgen MODULE
-    src/Variable.cc src/ConstraintGenPass.cc src/Constraint.cc
+            src/Constraint.cc
+            src/ConstraintBuilder.cc
+            src/ConstraintGenPass.cc
+            src/PointerSymbolTable.cc
+            src/PointsToConstraints.cc
 )
 
 add_library(assigntemp MODULE

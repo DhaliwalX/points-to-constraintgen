@@ -1,62 +1,49 @@
 #ifndef CONSTRAINT_H_
 #define CONSTRAINT_H_
 
+#include <limits>
 
-#include "Variable.h"
+namespace ptsto {
 
-#include <llvm/IR/Instruction.h>
-#include <llvm/Support/raw_ostream.h>
+using NodeIndex = unsigned;
 
-namespace pass {
+static const int kInvalidIndex = std::numeric_limits<int>::max();
 
-class PointerInformation;
+// PointsToConstraintType ::= the various types of assignments that can be 
+//  present in the IR and correspond a class of constraints
+enum class ConstraintType {
+    kAddressOf, /* e.g. %a = alloca %type, or in C, a = &b */
+    kLoad,      /* e.g. %a = load %type*, %type** %b,  in C as `a = *b` */
+    kStore,     /* e.g. store %type* %b, %type** %a,   in C as `*a = b` */
+    kCopy       /* e.g. %a = getelementptr %type, %type* %b, in C as `a = b` */
+};
 
+// Constraint ::= holds the information about a constraint for 
+//  points-to analysis. It stores the pointer to symbol table entry of source and
+//  destination. It also stores the type of constraint which can be one of above.
 class Constraint {
 public:
-    Constraint(Variable *lhs, Variable *rhs, llvm::Instruction *instruction)
-    : lhs_{ lhs }, rhs_{ rhs }, instruction_{ instruction }
-    {
-        processConstraintInformation();
+    Constraint(NodeIndex source, NodeIndex dest, ConstraintType type)
+        : type_{ type }, source_{ source }, dest_{ dest }
+    { }
+
+    NodeIndex getDestination() {
+        return dest_;
     }
 
-    ~Constraint() {
-        delete lhs_;
-        delete rhs_;
-        // instruction_ is owned by llvm
+    NodeIndex getSource() {
+        return source_;
     }
 
-    Variable *&lhs() { return lhs_; }
-    Variable *&rhs() { return rhs_; }
-
-    llvm::Instruction *&instruction() { return instruction_; }
-
-    void dump() {
-        llvm::errs() << "\e[1m";
-        lhs_->dump();
-        llvm::errs() << " = ";
-        rhs_->dump();
-        llvm::errs() << "\e[0m";
-        llvm::errs() << "\n";
+    ConstraintType getType() {
+        return type_;
     }
 
-
-    void processConstraintInformation();
+    void dump();
 private:
-    void processRHS();
-    void processLHS();
-    void processNode(ptrdiff_t &offset,
-                    ptrdiff_t &pointer_arithematic,
-                    ptrdiff_t &actual_offset,
-                    PointerType &type,
-                    std::string &name,
-                    bool &offset_calculated,
-                    PointerInfo *info,
-                    bool lhs);
-
-    Variable *lhs_;
-    Variable *rhs_;
-
-    llvm::Instruction *instruction_;
+    ConstraintType type_;
+    NodeIndex source_;
+    NodeIndex dest_;
 };
 
 }
