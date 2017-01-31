@@ -27,24 +27,30 @@ public:
         : type_{ type }, source_{ source }, dest_{ dest }
     { }
 
-    NodeIndex getDestination() {
+    NodeIndex getDestination() const {
         return dest_;
     }
 
-    NodeIndex getSource() {
+    NodeIndex getSource() const {
         return source_;
     }
 
-    ConstraintType getType() {
+    ConstraintType getType() const {
         return type_;
     }
 
-    void dump();
+    void dump() const;
+
 private:
     ConstraintType type_;
     NodeIndex source_;
     NodeIndex dest_;
 };
+
+static inline bool operator<(const Constraint &lhs, const Constraint &rhs) {
+    return lhs.getSource() < rhs.getSource()
+                || lhs.getDestination() < rhs.getDestination();
+}
 
 }
 
