@@ -14,7 +14,7 @@ PointsToConstraints &ConstraintBuilder::getConstraints() {
 
 void ConstraintBuilder::addConstraint(NodeIndex l, NodeIndex r,
                                       ConstraintType type) {
-    constraints_.emplace_back(l, r, type);
+    constraints_.insert(l, r, type);
 }
 
 bool ConstraintBuilder::generateForModule(Module *module) {
