@@ -10,7 +10,7 @@ const char *typeToString[] = {
     "COPY"
 };
 
-void Constraint::dump() {
+void Constraint::dump() const {
     llvm::errs() << typeToString[static_cast<int>(type_)]
         << "(" << source_ << ", " << dest_ << ")\n";
 }
