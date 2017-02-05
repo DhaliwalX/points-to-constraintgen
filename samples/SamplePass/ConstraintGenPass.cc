@@ -5,10 +5,17 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "ConstraintBuilder.h"
+#include "DotGraph.h"
 
 #include <vector>
 #include <utility>
 #include <map>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+
 
 using namespace llvm;
 using namespace ptsto;
@@ -22,11 +29,27 @@ struct ConstraintGen : public ModulePass {
 
     bool runOnModule(Module &module) override {
         ConstraintBuilder builder;
-
         builder.generateForModule(&module);
         PointsToConstraints constraints = builder.getConstraints();
 
+        errs() << "\n";
         constraints.dump();
+        errs() << "\n";
+
+        // generate dot file of the points-to graph
+        DotGraphWriter graph;
+        auto result = graph.write(constraints);
+
+        auto fd = open("constraints.dot", O_CREAT | O_WRONLY | O_TRUNC, 0660);
+        if (fd == -1) {
+            errs() << "Unable to open constraint.dot: " << strerror(errno);
+            return false;
+        }
+        raw_fd_ostream stream(fd, true);
+        stream << result;
+        stream.flush();
+
+        return false;
     }
 };
 

@@ -25,6 +25,10 @@ public:
 
     // generate constraints for an LLVM basic block
     bool generateForBasicBlock(llvm::BasicBlock *basicblock);
+
+    PointerSymbolTable &getSymbolTable() {
+        return table_;
+    }
 private:
     bool generateFromInstruction(llvm::Instruction *instruction);
 

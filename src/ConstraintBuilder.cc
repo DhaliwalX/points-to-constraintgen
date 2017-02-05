@@ -112,7 +112,7 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
                 return true;
             }
 
-            NodeIndex lhs = table_.createPointerNode(instruction);
+            NodeIndex lhs = table_.getOrCreatePointerNode(instruction);
             NodeIndex rhs = table_.getPointerNode(instruction->getOperand(0));
             addConstraint(lhs, rhs, ConstraintType::kLoad);
             return true;

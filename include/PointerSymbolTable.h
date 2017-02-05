@@ -33,6 +33,11 @@ public:
 
     NodeIndex getNode(llvm::Value *val);
 
+    // returns the size of the symbol table
+    std::vector<PointsToNode>::size_type size() {
+        return nodes_.size();
+    }
+
 private:
     NodeIndex getNode(std::map<llvm::Value*, NodeIndex> &map, llvm::Value *val);
     NodeIndex createNode(std::map<llvm::Value*, NodeIndex> &map,
