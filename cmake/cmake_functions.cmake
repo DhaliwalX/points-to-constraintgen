@@ -1,5 +1,5 @@
 
-set (opt_flags -load ./libconstraintgen.so -constraints)
+set (opt_flags -load ./lib/libconstraintgen.so -constraints)
 function(run_opt testfile)
     set (opt_current_flags ${opt_flags} ${testfile})
     get_filename_component(test_target ${testfile} NAME_WE)

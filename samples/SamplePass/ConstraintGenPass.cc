@@ -32,13 +32,15 @@ struct ConstraintGen : public ModulePass {
         builder.generateForModule(&module);
         PointsToConstraints constraints = builder.getConstraints();
 
+        errs() << "\n";
         constraints.dump();
-        
+        errs() << "\n";
+
         // generate dot file of the points-to graph
         DotGraphWriter graph;
         auto result = graph.write(constraints);
 
-        auto fd = open("constraints.dot", O_CREAT | O_WRONLY, 0660);
+        auto fd = open("constraints.dot", O_CREAT | O_WRONLY | O_TRUNC, 0660);
         if (fd == -1) {
             errs() << "Unable to open constraint.dot: " << strerror(errno);
             return false;

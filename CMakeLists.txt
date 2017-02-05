@@ -1,41 +1,27 @@
 cmake_minimum_required(VERSION 3.1)
 
+
 find_package(LLVM CONFIG REQUIRED)
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 include(LLVMConfig)
+
+# include these after loading llvm-config
 include(cmake/cmake_functions.cmake)
+include(cmake/PointsToFunctions.cmake)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_ROOT}/lib/cmake/llvm")
 message(STATUS "Looking for LLVM cmake modules: ${LLVM_ROOT}/lib/cmake/llvm")
 
-add_library(constraintgen MODULE
-            src/Constraint.cc
-            src/ConstraintBuilder.cc
-            src/ConstraintGenPass.cc
-            src/PointerSymbolTable.cc
-            src/PointsToConstraints.cc
-)
-
-add_library(assigntemp MODULE
-	utils/AssignTemporaryName.cc)
-
-add_library(gep MODULE utils/gepinstruction.cpp)
+set(POINTS_TO_INCLUDE_DIRECTORY CACHE INTERNAL ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(./include)
 add_definitions(${LLVM_DEFINITIONS})
 
-
-target_compile_features(constraintgen PRIVATE cxx_range_for cxx_auto_type)
-target_compile_features(assigntemp PRIVATE cxx_range_for cxx_auto_type)
-target_compile_features(gep PRIVATE cxx_range_for cxx_auto_type)
-
-set_target_properties(constraintgen PROPERTIES
-    COMPILE_FLAGS "-fno-rtti -g"
-)
-set_target_properties(assigntemp PROPERTIES COMPILE_FLAGS "-fno-rtti -g")
-set_target_properties(gep PROPERTIES COMPILE_FLAGS "-fno-rtti -g")
+add_subdirectory(./include)
+add_subdirectory(./src)
+add_subdirectory(./samples)
 
 file (GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/tests/ConstraintGenPass/*.c)
 
@@ -56,12 +42,10 @@ message(STATUS "Generating test files")
 foreach(file ${test_sources})
     get_filename_component(file_name_only ${file} NAME_WE)
     generate_optimized_file(${file} O0)
-    generate_optimized_file(${file} O1)
-    generate_optimized_file(${file} O2)
-    generate_optimized_file(${file} O3)
 endforeach(file)
 
 foreach(file ${generated_test_files})
     run_opt(${file})
     set_debug(${file})
 endforeach(${file})
+
