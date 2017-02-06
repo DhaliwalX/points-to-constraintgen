@@ -31,9 +31,6 @@ set(clang "clang")
 # generate output directories
 execute_process(
     COMMAND mkdir -p O0
-    COMMAND mkdir -p O1
-    COMMAND mkdir -p O2
-    COMMAND mkdir -p O3
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set(generated_test_files "")

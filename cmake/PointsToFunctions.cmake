@@ -1,8 +1,6 @@
 set(output_dir "${CMAKE_BINARY_DIR}/lib")
 
 function(add_points_to_project project_name sources)
-
-    message("${sources}")
     set(all_sources ${POINTS_TO_SOURCE_FILES} ${sources})
     add_library(${project_name} MODULE ${all_sources} ${POINTS_TO_SOURCE_FILES})
 
