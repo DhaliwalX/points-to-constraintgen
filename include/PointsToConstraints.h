@@ -3,19 +3,20 @@
 
 #include "Constraint.h"
 
+#include <vector>
 #include <set>
 
 namespace ptsto {
 
 class PointsToConstraints {
 public:
-    using iterator = std::set<Constraint>::iterator;
-    using const_iterator = std::set<Constraint>::const_iterator;
+    using iterator = std::vector<Constraint>::iterator;
+    using const_iterator = std::vector<Constraint>::const_iterator;
 
     PointsToConstraints() = default;
 
     void insert(NodeIndex src, NodeIndex dest, ConstraintType type) {
-        constraints_.insert(Constraint(src, dest, type));
+        constraints_.push_back(Constraint(src, dest, type));
     }
 
     iterator begin() {
@@ -36,11 +37,11 @@ public:
 
     void dump() const;
 
-    // returns the set of pointees of idx
+    // returns the vector of pointees of idx
     std::set<NodeIndex> getPointees(NodeIndex idx) const;
 
 private:
-    std::set<Constraint> constraints_;
+    std::vector<Constraint> constraints_;
 };
 
 }

@@ -1,4 +1,5 @@
 #include "Constraint.h"
+#include "PointerSymbolTable.h"
 
 #include <llvm/Support/raw_ostream.h>
 namespace ptsto {
@@ -14,6 +15,14 @@ void printVar(NodeIndex idx) {
     llvm::errs().changeColor(llvm::raw_ostream::WHITE, true);
     llvm::errs() << "a" << idx;
     llvm::errs().resetColor();
+}
+
+PointsToNode &Constraint::getLHSNode() {
+    return PointsToNode::table_->getValue(dest_);
+}
+
+PointsToNode &Constraint::getRHSNode() {
+    return PointsToNode::table_->getValue(source_);
 }
 
 void Constraint::dump() const {

@@ -1,13 +1,12 @@
 #ifndef CONSTRAINT_H_
 #define CONSTRAINT_H_
 
+#include "PointsToNode.h"
 #include <limits>
 
 namespace ptsto {
 
-using NodeIndex = unsigned;
-
-static const int kInvalidIndex = std::numeric_limits<int>::max();
+class PointerSymbolTable;
 
 // PointsToConstraintType ::= the various types of assignments that can be 
 //  present in the IR and correspond a class of constraints
@@ -41,6 +40,9 @@ public:
 
     void dump() const;
 
+    PointsToNode &getLHSNode();
+
+    PointsToNode &getRHSNode();
 private:
     ConstraintType type_;
     NodeIndex source_;

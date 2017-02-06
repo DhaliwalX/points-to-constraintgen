@@ -39,7 +39,7 @@ bool ConstraintBuilder::generateForFunction(Function *function) {
 
     // add arguments to the points to store
     for (auto &argument : FunctionArguments(*function)) {
-        (void)table_.createObjectNode(&argument);
+        (void)PointsToNode::table_->createObjectNode(&argument);
     }
 
     // run for every basicblock
@@ -78,8 +78,8 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
             //      %a = alloca i32
             //   here a is lhs and alloca i32 is a temporary object whose address
             //   being assigned to a
-            NodeIndex rhs = table_.createObjectNode(instruction);
-            NodeIndex lhs = table_.createPointerNode(instruction);
+            NodeIndex rhs = getTable().createObjectNode(instruction);
+            NodeIndex lhs = getTable().createPointerNode(instruction);
             addConstraint(lhs, rhs, ConstraintType::kAddressOf);
             return true;
         }
@@ -112,8 +112,8 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
                 return true;
             }
 
-            NodeIndex lhs = table_.getOrCreatePointerNode(instruction);
-            NodeIndex rhs = table_.getPointerNode(instruction->getOperand(0));
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
+            NodeIndex rhs = getTable().getPointerNode(instruction->getOperand(0));
             addConstraint(lhs, rhs, ConstraintType::kLoad);
             return true;
         }
@@ -125,8 +125,8 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
                 return true;
             }
 
-            NodeIndex lhs = table_.getPointerNode(instruction->getOperand(1));
-            NodeIndex rhs = table_.getNode(instruction->getOperand(0));
+            NodeIndex lhs = getTable().getPointerNode(instruction->getOperand(1));
+            NodeIndex rhs = getTable().getNode(instruction->getOperand(0));
             addConstraint(lhs, rhs, ConstraintType::kStore);
             return true;
         }
@@ -134,8 +134,8 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
         case Instruction::GetElementPtr:
         {
             // example, %a = getelementptr {i32,i32}, {i32,i32}* %b, i1 0, i32 1
-            NodeIndex lhs = table_.getOrCreatePointerNode(instruction);
-            NodeIndex rhs = table_.getNode(instruction->getOperand(0));
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
+            NodeIndex rhs = getTable().getNode(instruction->getOperand(0));
             addConstraint(lhs, rhs, ConstraintType::kCopy);
             return true;
         }
@@ -147,11 +147,11 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
 
             auto phi = dyn_cast<PHINode>(instruction);
 
-            NodeIndex lhs = table_.getOrCreatePointerNode(instruction);
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
 
             for (unsigned i = 0, e = phi->getNumIncomingValues(); i != e;
                 i++) {
-                NodeIndex rhs = table_.getNode(phi->getIncomingValue(i));
+                NodeIndex rhs = getTable().getNode(phi->getIncomingValue(i));
                 addConstraint(lhs, rhs, ConstraintType::kCopy);
             }
             return true;
@@ -163,8 +163,8 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
                 return true;
             }
 
-            NodeIndex lhs = table_.getOrCreatePointerNode(instruction);
-            NodeIndex rhs = table_.getNode(instruction->getOperand(0));
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
+            NodeIndex rhs = getTable().getNode(instruction->getOperand(0));
             addConstraint(lhs, rhs, ConstraintType::kCopy);
             return true;
         }

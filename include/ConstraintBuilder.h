@@ -26,15 +26,13 @@ public:
     // generate constraints for an LLVM basic block
     bool generateForBasicBlock(llvm::BasicBlock *basicblock);
 
-    PointerSymbolTable &getSymbolTable() {
-        return table_;
+    PointerSymbolTable &getTable() {
+        return *PointsToNode::table_;
     }
 private:
     bool generateFromInstruction(llvm::Instruction *instruction);
 
     void addConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);
-
-    PointerSymbolTable table_;
 
     // This will hold all the points-to constraints
     PointsToConstraints constraints_;

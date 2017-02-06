@@ -2,6 +2,7 @@ set(POINTS_TO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/Constraint.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/ConstraintBuilder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/PointerSymbolTable.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/PointsToNode.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/PointsToConstraints.cc
     ${POINTS_TO_SOURCE_FILES}
     PARENT_SCOPE
