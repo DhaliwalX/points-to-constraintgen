@@ -11,7 +11,7 @@ namespace ptsto {
 class PointerSymbolTable {
 public:
     // returns the value at index, can be pointer or pointee
-    PointsToNode &getValue(NodeIndex index);
+    PointsToNode *getValue(NodeIndex index);
 
     // creates a node representing a pointer and returns a index
     // for future reference and easy retrieval
@@ -24,6 +24,8 @@ public:
     // to the `val`. If there is no such node, then creates one
     NodeIndex getOrCreatePointerNode(llvm::Value *val);
 
+    NodeIndex getOrCreateObjectNode(llvm::Value *val);
+
     NodeIndex getPointerNode(llvm::Value *val);
 
     NodeIndex getObjectNode(llvm::Value *val);
@@ -32,6 +34,9 @@ public:
     NodeIndex getNode(llvm::Value *val, PointsToNode::Type type);
 
     NodeIndex getNode(llvm::Value *val);
+
+    // creates a new node
+    NodeIndex createNode(llvm::Value *val);
 
     // returns the size of the symbol table
     std::vector<PointsToNode>::size_type size() {
@@ -49,6 +54,7 @@ private:
 
     // it keeps track of objects whose address is being used
     std::map<llvm::Value*, NodeIndex> objectMap_;
+
     std::vector<PointsToNode> nodes_;
 };
 

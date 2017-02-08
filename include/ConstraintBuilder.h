@@ -30,6 +30,8 @@ public:
         return *PointsToNode::table_;
     }
 private:
+    void processGetElementPtrNode(llvm::GetElementPtrInst* instruction);
+
     bool generateFromInstruction(llvm::Instruction *instruction);
 
     void addConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);

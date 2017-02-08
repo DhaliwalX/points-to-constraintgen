@@ -40,9 +40,9 @@ public:
 
     void dump() const;
 
-    PointsToNode &getLHSNode();
+    PointsToNode *getLHSNode();
 
-    PointsToNode &getRHSNode();
+    PointsToNode *getRHSNode();
 private:
     ConstraintType type_;
     NodeIndex source_;

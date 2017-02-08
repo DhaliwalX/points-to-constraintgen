@@ -17,11 +17,11 @@ void printVar(NodeIndex idx) {
     llvm::errs().resetColor();
 }
 
-PointsToNode &Constraint::getLHSNode() {
+PointsToNode *Constraint::getLHSNode() {
     return PointsToNode::table_->getValue(dest_);
 }
 
-PointsToNode &Constraint::getRHSNode() {
+PointsToNode *Constraint::getRHSNode() {
     return PointsToNode::table_->getValue(source_);
 }
 

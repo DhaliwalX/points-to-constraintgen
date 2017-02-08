@@ -67,6 +67,31 @@ bool ConstraintBuilder::generateForBasicBlock(BasicBlock *basicblock) {
     return true;
 }
 
+void ConstraintBuilder::processGetElementPtrNode(GetElementPtrInst *instruction)
+{
+    NodeIndex id;
+
+    User::op_iterator i = instruction->idx_begin(),
+                      e = instruction->idx_end();
+
+    NodeIndex rhs = getTable().createNode(instruction);
+    PointsToNode *gepNode = getTable().getValue(rhs);
+
+    // get the id of the main pointer operand in the getelementptr
+    id = getTable().getNode(instruction->getOperand(0));
+    gepNode->use_push_back(id);
+
+    for (; i != e; ++i) {
+        Use *u = i;
+
+        id = getTable().getOrCreateObjectNode(u->get());
+        gepNode->use_push_back(id);
+    }
+
+    NodeIndex lhs = getTable().createPointerNode(instruction);
+    addConstraint(lhs, rhs, ConstraintType::kCopy);
+}
+
 bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
     // for simplicity using switch-case instead of visitor pattern
     switch (instruction->getOpcode()) {
@@ -134,9 +159,7 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
         case Instruction::GetElementPtr:
         {
             // example, %a = getelementptr {i32,i32}, {i32,i32}* %b, i1 0, i32 1
-            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex rhs = getTable().getNode(instruction->getOperand(0));
-            addConstraint(lhs, rhs, ConstraintType::kCopy);
+            processGetElementPtrNode(cast<GetElementPtrInst>(instruction));
             return true;
         }
 
