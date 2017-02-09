@@ -30,6 +30,7 @@ public:
         return *PointsToNode::table_;
     }
 private:
+    void processCallInstruction(llvm::CallInst *instruction);
     void processGetElementPtrNode(llvm::GetElementPtrInst* instruction);
 
     bool generateFromInstruction(llvm::Instruction *instruction);

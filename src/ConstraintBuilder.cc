@@ -89,6 +89,30 @@ void ConstraintBuilder::processGetElementPtrNode(GetElementPtrInst *instruction)
     }
 
     NodeIndex lhs = getTable().createPointerNode(instruction);
+    addConstraint(lhs, rhs, ConstraintType::kAddressOf);
+}
+
+void ConstraintBuilder::processCallInstruction(CallInst *instruction) {
+    NodeIndex id;
+
+    User::op_iterator i = instruction->arg_begin(),
+                      e = instruction->arg_end();
+
+    NodeIndex rhs = getTable().createNode(instruction);
+    PointsToNode *callNode = getTable().getValue(rhs);
+
+    // get the id of the main pointer operand in the getelementptr
+    id = getTable().getNode(instruction->getOperand(0));
+    callNode->use_push_back(id);
+
+    for (; i != e; ++i) {
+        Use *u = i;
+
+        id = getTable().getOrCreateObjectNode(u->get());
+        callNode->use_push_back(id);
+    }
+
+    NodeIndex lhs = getTable().createPointerNode(instruction);
     addConstraint(lhs, rhs, ConstraintType::kCopy);
 }
 
@@ -112,10 +136,8 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
         case Instruction::Call:
         case Instruction::Invoke:
         {
-            // TODO
-            errs() << "call/invoke instruction: ";
-            instruction->dump();
-            return false;
+            processCallInstruction(cast<CallInst>(instruction));
+            return true;
         }
 
         case Instruction::Ret:
