@@ -214,6 +214,25 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
             return true;
         }
 
+        case Instruction::Select:
+        {
+            if (!instruction->getType()->isPointerTy()) {
+                return true;
+            }
+
+            auto select = cast<SelectInst>(instruction);
+            NodeIndex t = getTable().getNode(select->getTrueValue());
+            NodeIndex f = getTable().getNode(select->getFalseValue());
+
+            NodeIndex rhs = getTable().createNode(instruction);
+            PointsToNode *selectNode = getTable().getValue(rhs);
+            selectNode->use_push_back(t);
+            selectNode->use_push_back(f);
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
+            addConstraint(lhs, rhs, ConstraintType::kCopy);
+            return true;
+        }
+
         case Instruction::IntToPtr:
         case Instruction::PtrToInt:
         case Instruction::VAArg:
@@ -223,7 +242,6 @@ bool ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
         case Instruction::Resume:
         case Instruction::AtomicRMW:
         case Instruction::AtomicCmpXchg:
-        case Instruction::Select:
         default:
         {
             //TODO
