@@ -11,7 +11,10 @@ NodeIndex PointerSymbolTable::createPointerNode(llvm::Value *val) {
 }
 
 NodeIndex PointerSymbolTable::createObjectNode(llvm::Value *val) {
-    return createNode(objectMap_, val, PointsToNode::Type::kPointee);
+    if (val->getType()->isPointerTy())
+        return createNode(objectMap_, val, PointsToNode::Type::kPointer);
+    else
+        return createNode(objectMap_, val, PointsToNode::Type::kNonPointer);
 }
 
 NodeIndex PointerSymbolTable::getOrCreatePointerNode(llvm::Value *val) {
@@ -71,7 +74,6 @@ NodeIndex PointerSymbolTable::createNode(std::map<llvm::Value*, NodeIndex> &map,
                     PointsToNode::Type type) {
     auto index = nodes_.size();
     nodes_.emplace_back(val, type);
-
     assert(!map.count(val));
     map.insert({ val, index });
     return index;
@@ -79,7 +81,7 @@ NodeIndex PointerSymbolTable::createNode(std::map<llvm::Value*, NodeIndex> &map,
 
 NodeIndex PointerSymbolTable::createNode(llvm::Value *val) {
     auto index = nodes_.size();
-    nodes_.push_back(PointsToNode(val, PointsToNode::Type::kPointee));
+    nodes_.push_back(PointsToNode(val, PointsToNode::Type::kPointer));
     return index;
 }
 

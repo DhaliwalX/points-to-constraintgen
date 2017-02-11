@@ -19,8 +19,8 @@ class PointsToNode {
 public:
     static PointerSymbolTable *table_;
     enum class Type {
-        kPointer,
-        kPointee
+        kNonPointer,
+        kPointer
     };
 
     PointsToNode(llvm::Value *value, Type type) : value_{ value }, type_{ type }
@@ -32,6 +32,10 @@ public:
 
     Type getType() {
         return type_;
+    }
+
+    void setType(Type t) {
+        type_ = t;
     }
 
     bool hasStructTy() const {
