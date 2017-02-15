@@ -19,7 +19,10 @@ void ConstraintBuilder::addConstraint(NodeIndex l, NodeIndex r,
 
 bool ConstraintBuilder::generateForModule(Module *module) {
     bool result = false;
-    // TODO: Handle the global variables here
+
+    for (auto &global : module->globals()) {
+        (void)getTable().createPointerNode(&global);
+    }
 
     // run for every function in module
     for (auto &function : *module) {
