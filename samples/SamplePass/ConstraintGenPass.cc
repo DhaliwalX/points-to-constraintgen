@@ -28,27 +28,6 @@ struct ConstraintGen : public ModulePass {
     ConstraintGen() : ModulePass(ID) { }
 
     bool runOnModule(Module &module) override {
-        ConstraintBuilder builder;
-        builder.generateForModule(&module);
-        PointsToConstraints constraints = builder.getConstraints();
-
-        errs() << "\n";
-        constraints.dump();
-        errs() << "\n";
-
-        // generate dot file of the points-to graph
-        DotGraphWriter graph;
-        auto result = graph.write(constraints);
-
-        auto fd = open("constraints.dot", O_CREAT | O_WRONLY | O_TRUNC, 0660);
-        if (fd == -1) {
-            errs() << "Unable to open constraint.dot: " << strerror(errno);
-            return false;
-        }
-        raw_fd_ostream stream(fd, true);
-        stream << result;
-        stream.flush();
-
         return false;
     }
 };

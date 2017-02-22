@@ -16,26 +16,20 @@ public:
 
     PointsToConstraints &getConstraints();
 
-    // generate constraints for an LLVM module
-    //  returns true if successful else false
-    bool generateForModule(llvm::Module *module);
-
-    // generate constraints for an LLVM function
-    bool generateForFunction(llvm::Function *function);
-
-    // generate constraints for an LLVM basic block
-    bool generateForBasicBlock(llvm::BasicBlock *basicblock);
+    // get constraints for an LLVM instruction
+    Constraint getConstraint(llvm::Instruction *instruction);
 
     PointerSymbolTable &getTable() {
         return *PointsToNode::table_;
     }
 private:
-    void processCallInstruction(llvm::CallInst *instruction);
-    void processGetElementPtrNode(llvm::GetElementPtrInst* instruction);
+    Constraint processCallInstruction(llvm::CallInst *instruction);
+    Constraint processGetElementPtrNode(llvm::GetElementPtrInst* instruction);
 
-    bool generateFromInstruction(llvm::Instruction *instruction);
+    Constraint generateFromInstruction(llvm::Instruction *instruction);
 
     void addConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);
+    Constraint makeConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);
 
     // This will hold all the points-to constraints
     PointsToConstraints constraints_;

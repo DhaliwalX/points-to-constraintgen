@@ -11,6 +11,7 @@ class PointerSymbolTable;
 // PointsToConstraintType ::= the various types of assignments that can be 
 //  present in the IR and correspond a class of constraints
 enum class ConstraintType {
+    kInvalid,
     kAddressOf, /* e.g. %a = alloca %type, or in C, a = &b */
     kLoad,      /* e.g. %a = load %type*, %type** %b,  in C as `a = *b` */
     kStore,     /* e.g. store %type* %b, %type** %a,   in C as `*a = b` */
