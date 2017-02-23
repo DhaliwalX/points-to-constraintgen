@@ -31,23 +31,15 @@ Follow these steps to build this project,
   ```
 
 ### Running & Testing
-You need opt tool to run this project. The project provides a number of test C files in tests/ directory. When you run cmake to build Makefiles, those C files are converted into .ll (LLVM IR) files into various directories (O0/, O1/, O2/, etc) based on level of optimization in the build/ directory.
-
-To run the generated pass on a particular test file, run this command
-
-```
-make test<number-of-test>-O<optmization-level>
-```
-
-Examples,
+There is a test pass built using this library in the tests/ directory.
+You can use the opt tools provided by LLVM to run the pass.
 
 ```bash
-make test1-O0
-make test3-O2
+opt -load <build-dir>/lib/libTestPass.so -test-pass -analyze
 ```
 
-You can look into all the options available using following command,
+You can test the pass using `check` target as
 
 ```bash
-make help
+make check
 ```
