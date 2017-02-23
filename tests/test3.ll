@@ -7,6 +7,6 @@ define void @f() {
     ret void
 }
 
-; CHECK: a1 = & a0
-; CHECK-NEXT: a3 = & a2
-; CHECK-NEXT: * a3 = a1
+; CHECK: 1 = & 0
+; CHECK-NEXT: 3 = & 2
+; CHECK-NEXT: * 3 = 1

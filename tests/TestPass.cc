@@ -29,6 +29,9 @@ struct ConstraintGen : public ModulePass {
 
     void print(raw_ostream &os, const Module */**/) const override {
         constraints_.dump(os);
+        // print mapping
+        os << "\nMapping:\n";
+        PointsToNode::table_->dump(os);
     }
 
     ConstraintGen() : ModulePass(ID) { }

@@ -28,7 +28,7 @@ NodeIndex PointerSymbolTable::getOrCreatePointerNode(llvm::Value *val) {
 
 NodeIndex PointerSymbolTable::getOrCreateObjectNode(llvm::Value *val) {
     auto it = objectMap_.find(val);
-    if (it != objectMap_.end()) {
+    if (it == objectMap_.end()) {
         return createObjectNode(val);
     }
 
@@ -73,7 +73,7 @@ NodeIndex PointerSymbolTable::createNode(std::map<llvm::Value*, NodeIndex> &map,
                     llvm::Value *val,
                     PointsToNode::Type type) {
     auto index = nodes_.size();
-    nodes_.emplace_back(val, type);
+    nodes_.emplace_back(val, type, index);
     assert(!map.count(val));
     map.insert({ val, index });
     return index;
@@ -81,8 +81,15 @@ NodeIndex PointerSymbolTable::createNode(std::map<llvm::Value*, NodeIndex> &map,
 
 NodeIndex PointerSymbolTable::createNode(llvm::Value *val) {
     auto index = nodes_.size();
-    nodes_.push_back(PointsToNode(val, PointsToNode::Type::kPointer));
+    nodes_.push_back(PointsToNode(val, PointsToNode::Type::kPointer, index));
     return index;
+}
+
+void PointerSymbolTable::dump(llvm::raw_ostream &os) const {
+    for (auto &node : nodes_) {
+        os << node.getId() << ": ";
+        node.getValue()->dump();
+    }
 }
 
 }

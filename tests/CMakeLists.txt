@@ -9,7 +9,7 @@ add_points_to_project(TestPass ${CONSTRAINT_GEN_SOURCES})
 find_python_module(lit REQUIRED)
 find_package(PythonInterp REQUIRED)
 add_custom_target(check
-    COMMAND lit ${CMAKE_BINARY_DIR}/tests/Tests -v
+    COMMAND lit ${CMAKE_BINARY_DIR}/tests/Tests -v -j 1
     DEPENDS TestPass)
 
 

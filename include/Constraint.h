@@ -24,7 +24,7 @@ enum class ConstraintType {
 //  destination. It also stores the type of constraint which can be one of above.
 class Constraint {
 public:
-    Constraint(NodeIndex source, NodeIndex dest, ConstraintType type)
+    Constraint(NodeIndex dest, NodeIndex source, ConstraintType type)
         : type_{ type }, source_{ source }, dest_{ dest }
     { }
 
@@ -43,8 +43,10 @@ public:
     void dump(llvm::raw_ostream &os) const;
 
     PointsToNode *getLHSNode();
+    PointsToNode *getLHSNode() const;
 
     PointsToNode *getRHSNode();
+    PointsToNode *getRHSNode() const;
 private:
     ConstraintType type_;
     NodeIndex source_;

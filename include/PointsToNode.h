@@ -4,6 +4,7 @@
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Type.h>
+#include <llvm/Support/raw_ostream.h>
 
 namespace ptsto {
 class PointerSymbolTable;
@@ -15,6 +16,7 @@ static const int kInvalidIndex = std::numeric_limits<int>::max();
 // this node represents a pointer or pointee
 class PointsToNode {
     using use_iterator = std::vector<NodeIndex>::iterator;
+    using const_use_iterator = std::vector<NodeIndex>::const_iterator;
     using size_type = std::vector<NodeIndex>::size_type;
 public:
     static PointerSymbolTable *table_;
@@ -23,10 +25,11 @@ public:
         kPointer
     };
 
-    PointsToNode(llvm::Value *value, Type type) : value_{ value }, type_{ type }
+    PointsToNode(llvm::Value *value, Type type, NodeIndex id)
+        : value_{ value }, type_{ type }, id_{ id }
     { }
 
-    llvm::Value *getValue() {
+    llvm::Value *getValue() const {
         return value_;
     }
 
@@ -72,17 +75,25 @@ public:
         return uses_.begin();
     }
 
+    const_use_iterator use_begin() const {
+        return uses_.begin();
+    }
+
     use_iterator use_end() {
         return uses_.end();
     }
 
+    const_use_iterator use_end() const {
+        return uses_.end();
+    }
+
     // returns true if use list is empty
-    bool use_empty() {
+    bool use_empty() const {
         return uses_.empty();
     }
 
     // returns the size of the use list
-    size_type size() {
+    size_type use_size() const {
         return uses_.size();
     }
 
@@ -94,6 +105,8 @@ public:
     void use_push_back(NodeIndex id) {
         uses_.push_back(id);
     }
+
+    void dump(llvm::raw_ostream &os) const;
 protected:
     // pointer to llvm value node
     llvm::Value *value_;

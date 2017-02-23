@@ -6,5 +6,5 @@ define void @f() {
     ret void
 }
 
-; CHECK: a1 = & a0
-; CHECK: a2 = * a1
+; CHECK: 1 = & 0
+; CHECK: 2 = * 1

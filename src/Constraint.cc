@@ -11,15 +11,23 @@ const char *typeToString[] = {
     "COPY"
 };
 
-void printVar(NodeIndex idx, llvm::raw_ostream &os) {
-    os << "a" << idx;
+void printVar(PointsToNode *node, llvm::raw_ostream &os) {
+    node->dump(os);
 }
 
 PointsToNode *Constraint::getLHSNode() {
     return PointsToNode::table_->getValue(dest_);
 }
 
+PointsToNode *Constraint::getLHSNode() const {
+    return PointsToNode::table_->getValue(dest_);
+}
+
 PointsToNode *Constraint::getRHSNode() {
+    return PointsToNode::table_->getValue(source_);
+}
+
+PointsToNode *Constraint::getRHSNode() const {
     return PointsToNode::table_->getValue(source_);
 }
 
@@ -28,28 +36,28 @@ void Constraint::dump(llvm::raw_ostream &os) const {
     llvm::errs().indent(4);
     switch (type_) {
         case ConstraintType::kAddressOf:
-            printVar(source_, os);
+            printVar(getLHSNode(), os);
             os << " = & ";
-            printVar(dest_, os);
+            printVar(getRHSNode(), os);
             break;
 
         case ConstraintType::kStore:
             os << "* ";
-            printVar(source_, os);
+            printVar(getLHSNode(), os);
             os << " = ";
-            printVar(dest_, os);
+            printVar(getRHSNode(), os);
             break;
 
         case ConstraintType::kLoad:
-            printVar(source_, os);
+            printVar(getLHSNode(), os);
             os << " = * ";
-            printVar(dest_, os);
+            printVar(getRHSNode(), os);
             break;
 
         case ConstraintType::kCopy:
-            printVar(source_, os);
+            printVar(getLHSNode(), os);
             os << " = ";
-            printVar(dest_, os);
+            printVar(getRHSNode(), os);
             break;
     }
 

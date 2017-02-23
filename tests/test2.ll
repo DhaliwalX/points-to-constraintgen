@@ -6,4 +6,4 @@ define void @f() {
     ret void
 }
 
-; CHECK: a1 = & a0
+; CHECK: 1 = & 0
