@@ -2,9 +2,9 @@
 
 namespace ptsto {
 
-void PointsToConstraints::dump() const {
+void PointsToConstraints::dump(llvm::raw_ostream &os) const {
     for (auto &constraint : constraints_) {
-        constraint.dump();
+        constraint.dump(os);
     }
 }
 

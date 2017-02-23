@@ -2,6 +2,7 @@
 #define CONSTRAINT_H_
 
 #include "PointsToNode.h"
+#include <llvm/Support/raw_ostream.h>
 #include <limits>
 
 namespace ptsto {
@@ -39,7 +40,7 @@ public:
         return type_;
     }
 
-    void dump() const;
+    void dump(llvm::raw_ostream &os) const;
 
     PointsToNode *getLHSNode();
 
@@ -53,6 +54,12 @@ private:
 static inline bool operator<(const Constraint &lhs, const Constraint &rhs) {
     return lhs.getSource() < rhs.getSource()
                 || lhs.getDestination() < rhs.getDestination();
+}
+
+static inline bool operator==(const Constraint &lhs, const Constraint &rhs) {
+    return lhs.getSource() == rhs.getSource()
+            && lhs.getDestination() == rhs.getDestination()
+            && lhs.getType() == rhs.getType();
 }
 
 }

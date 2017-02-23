@@ -21,6 +21,10 @@ public:
         constraints_.push_back(Constraint(src, dest, type));
     }
 
+    void push_back(Constraint c) {
+        constraints_.push_back(c);
+    }
+
     iterator begin() {
         return constraints_.begin();
     }
@@ -37,7 +41,7 @@ public:
         return constraints_.cend();
     }
 
-    void dump() const;
+    void dump(llvm::raw_ostream &os) const;
 
     // returns the vector of pointees of idx
     std::set<NodeIndex> getPointees(NodeIndex idx) const;
