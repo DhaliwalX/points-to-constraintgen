@@ -17,6 +17,10 @@ Constraint ConstraintBuilder::makeConstraint(NodeIndex lhs, NodeIndex rhs,
     return Constraint(lhs, rhs, type);
 }
 
+Constraint ConstraintBuilder::getConstraint(llvm::Instruction *instruction) {
+    return generateFromInstruction(instruction);
+}
+
 Constraint ConstraintBuilder::processGetElementPtrNode(GetElementPtrInst *instruction)
 {
     NodeIndex id;
