@@ -8,6 +8,7 @@ include(LLVMConfig)
 # include these after loading llvm-config
 include(cmake/cmake_functions.cmake)
 include(cmake/PointsToFunctions.cmake)
+include(cmake/FindPythonModule.cmake)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_ROOT}/lib/cmake/llvm")
@@ -22,27 +23,25 @@ add_definitions(${LLVM_DEFINITIONS})
 add_subdirectory(./include)
 add_subdirectory(./src)
 add_subdirectory(./samples)
+add_subdirectory(./tests)
 
-file (GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/tests/ConstraintGenPass/*.c)
+file (GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.ll)
 
-set(args -S -c -emit-llvm -w)
-set(clang "clang")
+# set(args -S -c -emit-llvm -w)
+# set(clang "clang")
+
+# set various configuration settings in the test suite
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/lit.cfg.in" "${CMAKE_CURRENT_BINARY_DIR}/tests/Tests/lit.cfg")
+
 
 # generate output directories
 execute_process(
-    COMMAND mkdir -p O0
+    COMMAND mkdir -p tests/Tests
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-set(generated_test_files "")
 
-message(STATUS "Generating test files")
 foreach(file ${test_sources})
     get_filename_component(file_name_only ${file} NAME_WE)
-    generate_optimized_file(${file} O0)
+    execute_process(
+        COMMAND cp ${file} ${CMAKE_BINARY_DIR}/tests/Tests/)
 endforeach(file)
-
-foreach(file ${generated_test_files})
-    run_opt(${file})
-    set_debug(${file})
-endforeach(${file})
-

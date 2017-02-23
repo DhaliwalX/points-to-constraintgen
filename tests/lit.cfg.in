@@ -1,0 +1,28 @@
+import os
+import re
+import platform
+from  lit import formats
+
+src_root = '@CMAKE_SOURCE_DIR@'
+build_root = '@CMAKE_BINARY_DIR@'
+config.name = 'points-to'
+config.test_source_root = os.path.join(src_root, 'tests')
+
+# Configuration file for the 'lit' test runner.
+config.test_format = formats.ShTest(True)
+
+# suffixes: A list of file extensions to treat as test files. This is overriden
+# by individual lit.local.cfg files in the test subdirectories.
+config.suffixes = ['.ll', '.c', '.cpp', '.test', '.txt', '.s']
+
+config.excludes = ['CMakeCache.txt', 'CMakeFiles', 'CMakeLists.txt', 'ConstraintGenPass', 'googletest', 'TestPass.cc']
+
+config.substitutions.append(('%bindir', build_root))
+
+
+# environment: Set PATH as required
+config.environment['PATH'] = os.pathsep.join([os.path.join("@LLVM_ROOT@", "bin"),
+                                              config.environment['PATH']])
+config.environment['LLVM_ROOT'] = "@LLVM_ROOT@"
+config.environment['CMAKE_SOURCE_DIR'] = "@CMAKE_SOURCE_DIR@"
+config.environment['MOD_EXT'] = "@CMAKE_SHARED_LIBRARY_SUFFIX@"
