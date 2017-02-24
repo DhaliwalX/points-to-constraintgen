@@ -41,7 +41,6 @@ execute_process(
 )
 
 foreach(file ${test_sources})
-    get_filename_component(file_name_only ${file} NAME_WE)
     execute_process(
         COMMAND cp ${file} ${CMAKE_BINARY_DIR}/tests/Tests/)
 endforeach(file)
