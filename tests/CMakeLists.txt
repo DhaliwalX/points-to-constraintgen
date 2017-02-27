@@ -1,4 +1,4 @@
-
+add_subdirectory(BasicPointsToAnalysis)
 set (CONSTRAINT_GEN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/TestPass.cc
 )

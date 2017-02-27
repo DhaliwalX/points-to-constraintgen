@@ -5,6 +5,56 @@
 
 namespace ptsto {
 
+template <typename Iterable>
+class ReverseAdaptor {
+public:
+    using IterableIterator = typename Iterable::iterator;
+
+    class iterator {
+    public:
+        iterator(IterableIterator beg)
+            : beg_{ beg }, current_{ 0 }
+        { }
+
+        bool operator==(const IterableIterator &rhs) {
+            return rhs.beg_ == beg_;
+        }
+
+        bool operator!=(const IterableIterator &rhs) {
+            return !(*this == rhs);
+        }
+
+        iterator operator++() {
+            return iterator(beg_ - ++current_);
+        }
+
+        iterator operator++(int) {
+            iterator t = *this;
+            ++(*this);
+            return t;
+        }
+
+    private:
+        IterableIterator beg_;
+        unsigned current_;
+    };
+
+    ReverseAdaptor(Iterable &iterable)
+    : iterable_{ iterable }
+    { }
+
+    iterator begin() {
+        return iterable_.end() - 1;
+    }
+
+    iterator end() {
+        return iterable_.begin() - 1;
+    }
+
+private:
+    Iterable &iterable_;
+};
+
 class FunctionArguments {
 public:
     using iterator = llvm::Function::arg_iterator;
