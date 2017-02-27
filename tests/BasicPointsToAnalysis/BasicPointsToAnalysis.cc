@@ -24,6 +24,10 @@ struct BasicPointsToAnalysis : public ModulePass {
     ConstraintBuilder builder_;
 
     void print(raw_ostream &os, const Module */**/) const override {
+        for (auto constraint : solvedConstraints_) {
+            os << constraint.first << " --> " << constraint.second << "\n";
+        }
+
         // print mapping
         os << "\nMapping:\n";
         PointsToNode::table_->dump(os);
@@ -31,12 +35,41 @@ struct BasicPointsToAnalysis : public ModulePass {
 
     BasicPointsToAnalysis() : ModulePass(ID) { }
 
+    NodeIndex getPointeeofPointee(NodeIndex pointer) {        
+        auto it = solvedConstraints_.find(pointer);
+        assert(solvedConstraints_.end() != it);
+
+        it = solvedConstraints_.find(it->second);
+        assert(solvedConstraints_.end() != it);
+        return it->second;
+    }
+
     void solveConstraint(Constraint &c) {
         switch (c.getType()) {
             case ConstraintType::kAddressOf:
                 solvedConstraints_.insert({ c.getDestination(), c.getSource() });
                 break;
 
+            case ConstraintType::kLoad: {
+                // a = *b
+                // a --> x  & b --> y --> z ==> a --> z
+                auto p = getPointeeofPointee(c.getSource());
+                solvedConstraints_.insert({ c.getDestination(), p});
+                break;
+            }
+            case ConstraintType::kStore: {
+                // *a = b
+                // a--> x --> y & b --> z ==> x --> z                
+                auto it = solvedConstraints_.find(c.getDestination());
+                assert(solvedConstraints_.end() != it);
+                solvedConstraints_[it->second] = solvedConstraints_[c.getSource()];
+                break;
+            }
+
+            case ConstraintType::kCopy: {
+                // a = b
+                // a --> x & b --> y ==> a --> y
+            }
             default:
                 errs() << "Not handled\n";
         }
