@@ -22,8 +22,13 @@ struct BasicPointsToAnalysis : public ModulePass {
 
     std::map<NodeIndex, NodeIndex> solvedConstraints_;
     ConstraintBuilder builder_;
+    PointsToConstraints constraints_;
 
     void print(raw_ostream &os, const Module */**/) const override {
+        os << "Initial constraints:\n";
+        constraints_.dump(os);
+
+        os << "Solved constraints:\n";
         for (auto constraint : solvedConstraints_) {
             os << constraint.first << " --> " << constraint.second << "\n";
         }
@@ -69,6 +74,7 @@ struct BasicPointsToAnalysis : public ModulePass {
             case ConstraintType::kCopy: {
                 // a = b
                 // a --> x & b --> y ==> a --> y
+
             }
             default:
                 errs() << "Not handled\n";
@@ -86,6 +92,8 @@ struct BasicPointsToAnalysis : public ModulePass {
                         continue;
                     }
 
+                    // save the initial constraints
+                    constraints_.push_back(c);
                     solveConstraint(c);
                 }
             }
