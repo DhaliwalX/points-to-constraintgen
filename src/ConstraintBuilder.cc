@@ -81,7 +81,14 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             //      %a = alloca i32
             //   here a is lhs and alloca i32 is a temporary object whose address
             //   being assigned to a
-            NodeIndex rhs = getTable().createObjectNode(instruction);
+            errs() << "Alloca Type: ";
+            NodeIndex rhs;
+            if (dyn_cast<AllocaInst>(instruction)->getAllocatedType()->isPointerTy())
+                // this is a dummy node
+                // TODO: Find a way to handle this case
+                rhs = getTable().createObjectNode(instruction);
+            else
+                rhs = getTable().createObjectNode(instruction);
             NodeIndex lhs = getTable().createPointerNode(instruction);
             return makeConstraint(lhs, rhs, ConstraintType::kAddressOf);
         }
@@ -94,10 +101,12 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
 
         case Instruction::Ret:
         {
-            //TODO
-            errs() << "instruction not implemented: ";
-            instruction->dump();
-            return kInvalidConstraint;
+            if (!instruction->getType()->isPointerTy()) {
+                return kInvalidConstraint;
+            }
+            NodeIndex lhs = getTable().getOrCreatePointerNode(nullptr);
+            NodeIndex rhs = getTable().getPointerNode(instruction->getOperand(0));
+            return makeConstraint(lhs, rhs, ConstraintType::kReturn);
         }
 
 

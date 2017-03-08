@@ -16,7 +16,8 @@ enum class ConstraintType {
     kAddressOf, /* e.g. %a = alloca %type, or in C, a = &b */
     kLoad,      /* e.g. %a = load %type*, %type** %b,  in C as `a = *b` */
     kStore,     /* e.g. store %type* %b, %type** %a,   in C as `*a = b` */
-    kCopy       /* e.g. %a = getelementptr %type, %type* %b, in C as `a = b` */
+    kCopy,      /* e.g. %a = getelementptr %type, %type* %b, in C as `a = b` */
+    kReturn
 };
 
 // Constraint ::= holds the information about a constraint for 
