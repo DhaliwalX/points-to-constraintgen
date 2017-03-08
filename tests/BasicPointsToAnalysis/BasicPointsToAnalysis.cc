@@ -74,6 +74,12 @@ struct BasicPointsToAnalysis : public ModulePass {
             case ConstraintType::kCopy: {
                 // a = b
                 // a --> x & b --> y ==> a --> y
+                auto it = solvedConstraints_.find(c.getSource());
+                PointsToNode *sourceNode = c.getRHSNode();
+                assert(sourceNode->use_empty());
+                assert(solvedConstraints_.end() != it);
+                solvedConstraints_[c.getDestination()] = it->second;
+                break;
 
             }
             default:
