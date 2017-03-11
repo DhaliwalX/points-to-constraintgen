@@ -46,6 +46,9 @@ public:
     // dumps the symbol table
     void dump(llvm::raw_ostream &os) const;
 
+    // creates a dummy node in the table
+    NodeIndex createDummyNode(llvm::AllocaInst *inst);
+
 private:
     NodeIndex getNode(std::map<llvm::Value*, NodeIndex> &map, llvm::Value *val);
     NodeIndex createNode(std::map<llvm::Value*, NodeIndex> &map,

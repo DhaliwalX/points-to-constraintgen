@@ -83,12 +83,7 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             //   being assigned to a
             errs() << "Alloca Type: ";
             NodeIndex rhs;
-            if (dyn_cast<AllocaInst>(instruction)->getAllocatedType()->isPointerTy())
-                // this is a dummy node
-                // TODO: Find a way to handle this case
-                rhs = getTable().createObjectNode(instruction);
-            else
-                rhs = getTable().createObjectNode(instruction);
+            rhs = getTable().createDummyNode(dyn_cast<AllocaInst>(instruction));
             NodeIndex lhs = getTable().createPointerNode(instruction);
             return makeConstraint(lhs, rhs, ConstraintType::kAddressOf);
         }

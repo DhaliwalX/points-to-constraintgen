@@ -88,8 +88,24 @@ NodeIndex PointerSymbolTable::createNode(llvm::Value *val) {
 void PointerSymbolTable::dump(llvm::raw_ostream &os) const {
     for (auto &node : nodes_) {
         os << node.getId() << ": ";
-        node.getValue()->dump();
+
+        if (!node.isDummy()) {
+            node.getValue()->dump();
+        } else {
+            os << "DummyNode\n";
+        }
     }
+}
+
+NodeIndex PointerSymbolTable::createDummyNode(llvm::AllocaInst *inst) {
+    auto index = nodes_.size();
+    if (inst->getAllocatedType()->isPointerTy()) {
+        nodes_.push_back(PointsToNode(nullptr, PointsToNode::Type::kPointer, index));
+    } else {
+        nodes_.push_back(PointsToNode(nullptr, PointsToNode::Type::kNonPointer, index));
+    }
+
+    return index;
 }
 
 }

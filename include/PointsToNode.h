@@ -106,6 +106,12 @@ public:
         uses_.push_back(id);
     }
 
+    // returns true if this node is a dummy node, means it does not have any
+    // llvm::Value* node
+    bool isDummy() const {
+        return value_ == nullptr;
+    }
+
     void dump(llvm::raw_ostream &os) const;
 protected:
     // pointer to llvm value node
