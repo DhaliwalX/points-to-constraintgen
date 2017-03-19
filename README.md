@@ -6,6 +6,7 @@
  - LLVM (>=4.0)
  - g++
  - cmake (>=3.1)
+ - doxygen
 
 ### Building
 Follow these steps to build this project,
@@ -28,6 +29,13 @@ Follow these steps to build this project,
 
   ```bash
     make
+  ```
+
+  4) Generating documentation
+
+  ```bash
+    cd docs
+    doxygen Doxyfile
   ```
 
 ### Running & Testing
