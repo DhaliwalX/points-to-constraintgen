@@ -1,3 +1,17 @@
+/**
+ * \file Adaptors.h
+ * Special adaptors for making life a bit easier
+ *
+ * Iterating over llvm attributes of a llvm::Value is bit of
+ * pain so it makes easier for iterating over those attributes
+ * attributes like function arguments, users etc.
+ *
+ * So now you can write loops like
+ *
+ *     for (auto &arg : FunctionArguments(function))
+ *         arg->dump();
+ *
+ */
 #ifndef ADAPTORS_H_
 #define ADAPTORS_H_
 
@@ -5,68 +19,35 @@
 
 namespace ptsto {
 
-template <typename Iterable>
-class ReverseAdaptor {
-public:
-    using IterableIterator = typename Iterable::iterator;
-
-    class iterator {
-    public:
-        iterator(IterableIterator beg)
-            : beg_{ beg }, current_{ 0 }
-        { }
-
-        bool operator==(const IterableIterator &rhs) {
-            return rhs.beg_ == beg_;
-        }
-
-        bool operator!=(const IterableIterator &rhs) {
-            return !(*this == rhs);
-        }
-
-        iterator operator++() {
-            return iterator(beg_ - ++current_);
-        }
-
-        iterator operator++(int) {
-            iterator t = *this;
-            ++(*this);
-            return t;
-        }
-
-    private:
-        IterableIterator beg_;
-        unsigned current_;
-    };
-
-    ReverseAdaptor(Iterable &iterable)
-    : iterable_{ iterable }
-    { }
-
-    iterator begin() {
-        return iterable_.end() - 1;
-    }
-
-    iterator end() {
-        return iterable_.begin() - 1;
-    }
-
-private:
-    Iterable &iterable_;
-};
-
+/**
+ * adaptor for iterating over arguments of llvm::function
+ */
 class FunctionArguments {
 public:
+    /**
+     * makes easier for standard algorithms to adapt this class
+     */
     using iterator = llvm::Function::arg_iterator;
 
-    FunctionArguments(llvm::Function &function)
+    /**
+     * \param function An llvm::Function variable
+     */
+    explicit FunctionArguments(llvm::Function &function)
         : function_{ function }
     { }
 
+    /**
+     * returns the iterator to the first argument
+     * \return iterator to the first llvm::Argument
+     */
     iterator begin() {
         return function_.arg_begin();
     }
 
+    /**
+     * returns the iterator to the last argument
+     * \return iterator to the last llvm::Argument
+     */
     iterator end() {
         return function_.arg_end();
     }

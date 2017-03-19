@@ -1,3 +1,8 @@
+/**
+ * \file PointsToConstraints.h
+ *
+ * This class is not as useful and will be removed
+ */
 #ifndef POINTS_TO_CONSTRAINTS
 #define POINTS_TO_CONSTRAINTS
 
