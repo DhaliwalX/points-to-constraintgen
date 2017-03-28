@@ -7,16 +7,6 @@
 #include "ConstraintBuilder.h"
 #include "DotGraph.h"
 
-#include <vector>
-#include <utility>
-#include <map>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-
-
 using namespace llvm;
 using namespace ptsto;
 
@@ -41,7 +31,7 @@ struct ConstraintGen : public ModulePass {
 
         for (Function &f : module) {
             for (BasicBlock &bb : f) {
-                for (Instruction &i : bb) {
+                 for (Instruction &i : bb) {
                     Constraint c = builder.getConstraint(&i);
                     if (c == kInvalidConstraint) {
                         continue;
