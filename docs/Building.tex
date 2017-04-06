@@ -1,0 +1,25 @@
+\section{Building}
+
+\subsection{Requirements}
+
+Building on Linux requires following software installed and to be in the PATH
+environment variable.
+
+\begin{itemize}
+    \item LLVM-4.0 with llvm-lit and FileCheck
+    \item gcc
+    \item clang-4.0
+    \item doxygen (optional, for generating documentation in html/pdf)
+    \item cmake-3.4 or higher
+    \item make
+\end{itemize}
+
+\subsection{Building \& Testing}
+
+Follow these steps to build and test the project:
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+    make check \# for testing

@@ -1,0 +1,66 @@
+\section{What is opt?}
+
+\begin{lstlisting}
+ opt .bc -> .bc modular optimizer and analysis printer
+\end{lstlisting}
+
+\paragraph{u1}
+opt is a commandline tool designed for managing various LLVM passes. It takes
+LLVM IR as input and performs various analysis
+and optimizations and outputs the transformed IR. The LLVM optimizer is
+completely optimizer and can be configured to use a particular optimization at
+a particular instant of time. The order of various optimizations or analysis can
+be configured to suit the need.
+
+\subsection{Using opt}
+
+If you have LLVM installed on your system, then you can use opt right from the commandline,
+
+\begin{lstlisting}
+opt -help
+\end{lstlisting}
+
+\paragraph{u2}
+To print a .bc file into human readable output,
+
+\begin{lstlisting}
+opt -S < a.bc 
+\end{lstlisting}
+
+Running a builtin pass,
+
+\begin{lstlisting}
+opt -{passname} a.bc -o output.bc
+\end{lstlisting}
+
+where `passname` can be one of several passes listed in `opt --help`.
+
+\paragraph{u3}
+Loading and running a dynamic pass,
+Suppose your pass is libHello.so, so you can load and run this pass as
+
+\begin{lstlisting}
+opt -load /path/to/libHello.so -hello a.bc -o output.bc
+\end{lstlisting}
+
+If your pass just runs analysis over the IR and you want to print the results,
+then you can use `-analyze` option. Note that you have to override the `print`
+method of your respective pass class.
+
+\begin{lstlisting}
+opt -load /path/to/libHello.so -hello -analyze a.bc -S
+\end{lstlisting}
+
+Running multiple passes,
+You can run multiple passes by specifying the option for each pass in a order.
+The order in which the options are specified is the order in which they will be
+executed.
+
+\begin{lstlisting}
+opt -load /path/to/libHello.so -load /path/to/libAnother.so -some-builtin-pass -another -hello a.bc -analyze -S
+\end{lstlisting}
+
+\subsection{References}
+You can learn more about opt on the following websites
+
+ - [http://llvm.org/docs/CommandGuide/opt.html](http://llvm.org/docs/CommandGuide/opt.html)

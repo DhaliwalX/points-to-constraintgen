@@ -1,0 +1,58 @@
+\section{Getting Started with LLVM}
+
+\subsection{A brief history of LLVM}
+LLVM is great project for compiler hackers. If someone wants to learn the internals
+of a compiler then he should definitely go for LLVM. From super optimizing static
+compilers to JITs everything can be built using LLVM.
+
+LLVM is an acronym for Low Level Virtual Machine, but as the project evolved it
+included a variety of low level compiler technologies (not just Virtual Machine),
+the acronym was dropped. Now it is just known as LLVM. As of wikipedia, LLVM is a
+brand that applies to the LLVM umbrella project, the LLVM intermediate representation,
+the LLVM debugger, the LLVM C++ standard library, etc.
+
+LLVM was started as a research project by Chris Lattner (then Ph.D. student
+of Dr. Vikram Adve) in 2001. Base idea of Chris was to create a JIT for Java. Java then
+was slow and used a virtual machine to run bytecodes. Main purpose was not just to
+create a virtual machine instead of creating a tool to investigate the dynamic
+compilation techniques for static and dynamic languages.
+
+At that time Apple was looking for a compiler framework. GCC used a much strict
+GPL license. If Apple used GCC, they would have to release much of their private
+code under GPL license. LLVM uses much more permissive University of Illinios License
+which allowed Apple to develop private branches of Clang without releasing full source code.
+Apple hired Chris for further development. With back of Apple, LLVM developed much faster.
+Due to its great documentation, community took interest and helped in development.
+
+Currently, LLVM has grown into number of subprojects. It includes a full fledge C/C++ compiler
+known as clang. A huge research is going on on building Parallel compilers using LLVM. The
+number of optimization passes has grown. More than 200 optimization passes are available for LLVM.
+There are python bindings as well as Go bindings available for LLVM.
+
+LLVM is still being maintained by Chris Lattner. The latter having the most commits in the project.
+His wife Tanya Lattner is the president of LLVM Foundation.
+
+This section provides information about resources from where one can learn
+about LLVM and learn writing passes for it.
+
+\subsection{Resources for learning LLVM}
+Here is list of resources which you can use to learn the LLVM.
+
+\begin{itemize}
+ \item \href{http://llvm.org}{Official Website}
+ \item \href{http://llvm.org/docs}{Full Documentation}
+ \item \href{http://llvm.org/pubs/2008-10-04-ACAT-LLVM-Intro.pdf}{Introduction to LLVM presentation}
+ \item \href{http://llvm.org/pubs/2004-01-30-CGO-LLVM.pdf}{Intial Paper on LLVM}
+ \item \href{http://llvm.org/docs/GettingStarted.html}{Building and Installing LLVM}
+ \item \href{http://llvm.org/docs/CMake.html}{Getting Started with cmake on LLVM}
+ \item \href{http://llvm.org/docs/tutorial/index.html}{LLVM Tutorial - Building a simple JIT based language}
+ (not required, just for knowledge)
+ \item \href{http://llvm.org/docs/LangRef.html}{LLVM Language Reference Manual}
+ (most important), describes about LLVM IR.
+ \item \href{http://llvm.org/docs/ProgrammersManual.html}{LLVM Programmer's Manual},
+ describes various data structures that can be used. (important)
+ \item \href{http://llvm.org/docs/WritingAnLLVMPass.html}{Writing a simple LLVM pass}
+ \item \href{http://llvm.org/doxygen/}{Doxygen generated Documentation}
+
+It is easier to use google rather than this. Like you can directly search about any llvm class by adding prefix llvm to any query. For e.g. if you want to know about Value class, then search for llvm Value, and you will get the right documentation.
+\end{itemize}

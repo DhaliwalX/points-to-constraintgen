@@ -1,0 +1,175 @@
+\section{Getting Started}
+
+\subsection{Prerequisites}
+\begin{itemize}
+    \item cmake (Beginner)
+    \item C++ (intermediate)
+    \item llvm (intermediate)
+\end{itemize}
+
+You can learn all the above from their respective documentation.
+
+\subsection{Directory Structure}
+Before starting to code, it is important to understand the directory structure of the library.
+
+The library is divided into following directories:
+
+\begin{itemize}
+  \item cmake/      Important cmake modules required for building library
+  \item docs/       Documentation
+  \item include/    The public interface to the library
+  \item samples/    Sample C code for testing and debugging
+  \item src/        Implementation of the library
+  \item tests/      Test code
+  \item utils/      Small utility libraries
+\end{itemize}
+
+\subsection{Building a simple test pass}
+In this section, we will discuss about building a small llvm pass using this
+library. This pass takes the llvm module as input, then gathers points-to
+constraints using library and then dumps them to the stdout.
+
+Before moving on, you should have built a simple hello world llvm pass. If you
+haven't, then follow the tutorial [here](http://llvm.org/docs/WritingAnLLVMPass.html).
+
+You can build the pass inside the library in tests/ directory.
+
+\subsection{Implementation}
+First create a new file, say TestPass.cc, inside tests directory. Open the CMakeLists.txt file in the tests/ directory and append the following line to it.
+
+\begin{lstlisting}
+set(TEST_PASS_SOURCES TestPass.cc)
+add_points_to_project(name ${TEST_PASS_SOURCES})
+\end{lstlisting}
+
+Now we can start writing the pass.
+
+As we know that to write an llvm pass, we have to inherit from one of the ModulePass, BasicBlockPass, LoopPass, or FunctionPass. Since we are writing a pass that runs on the whole module, so we need to inherit from ModulePass.
+The basic skeleton code looks like this,
+
+
+\begin{lstlisting}
+#include "llvm/Pass.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/Function.h"
+
+using namespace llvm;
+
+namespace {
+
+struct TestPass : public ModulePass {
+    static char ID;  // required
+
+    bool runOnModule(Module &module) {
+        // our logic
+    }
+};
+
+}
+
+// static
+char TestPass:ID = 0;
+
+// registration of pass
+static RegisterPass<TestPass> X("test-pass", "A short description",
+                                false, // looks at CFG only
+                                false  // doesn't modify anything
+                                );
+\end{lstlisting}
+
+The logic required for this pass is simple. All we have to do is to generate
+constraints for every instruction in the IR and save them in a data structure.
+Then to show the output we can override the print method of ModulePass class.
+In print method, we can just dump those constraints\newline
+Now the next thing is to use *this* library for generating constraints.
+Simplest way to use this library is to use the `ConstraintBuilder` class. This
+class provides the method `getConstraint` with prototype as
+
+\begin{lstlisting}
+/**
+ * \param instruction The LLVM instruction
+ * \return Single Constraint object for single LLVM IR statement
+ */
+Constraint getConstraint(llvm::Instruction *instruction);
+\end{lstlisting}
+
+It takes an LLVM instruction pointer and returns a `Constraint` object. 
+We can use `ConstraintBuilder` like,
+
+\begin{lstlisting}
+ConstraintBuilder builder;
+
+for (auto &instruction : basicblock) {
+    Constraint c = builder.getConstraint(&instruction);
+    // not every instruction is a possible points-to constraint
+    if (c != kInvalidConstraint) {
+        continue;
+    }
+
+    // do whatever you like to do with c
+}
+\end{lstlisting}
+
+The code looks like,
+
+\begin{lstlisting}
+#include "llvm/Pass.h"
+#include "llvm/Support/ErrorHandling.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/Support/raw_ostream.h"
+
+#include "ConstraintBuilder.h"
+
+/* For storing the constraints */
+#include <vector>
+
+using namespace llvm;
+using namespace ptsto;
+
+namespace {
+
+struct ConstraintGen : public ModulePass {
+    static char ID;
+
+    std::vector<Constraint> constraints_;
+
+    void print(raw_ostream &os, const Module */**/) const override {
+        for (const auto &constraint : constraints_) {
+            constraint.dump(os);
+        }
+    }
+
+    ConstraintGen() : ModulePass(ID) { }
+
+    bool runOnModule(Module &module) override {
+        ConstraintBuilder builder;
+
+        for (Function &f : module) {
+            for (BasicBlock &bb : f) {
+                 for (Instruction &i : bb) {
+                    Constraint c = builder.getConstraint(&i);
+                    if (c == kInvalidConstraint) {
+                        continue;
+                    }
+
+                    constraints_.push_back(c);
+                }
+            }
+        }
+        return false;
+    }
+};
+
+}
+
+// static
+char TestPass:ID = 0;
+
+// registration of pass
+static RegisterPass<TestPass> X("test-pass", "A short description",
+                                false, // looks at CFG only
+                                false  // doesn't modify anything
+                                );
+\end{lstlisting}
+

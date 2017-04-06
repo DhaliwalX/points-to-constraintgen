@@ -100,7 +100,7 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
                 return kInvalidConstraint;
             }
             NodeIndex lhs = getTable().getOrCreatePointerNode(nullptr);
-            NodeIndex rhs = getTable().getPointerNode(instruction->getOperand(0));
+            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
             return makeConstraint(lhs, rhs, ConstraintType::kReturn);
         }
 
@@ -116,7 +116,7 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             }
 
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex rhs = getTable().getPointerNode(instruction->getOperand(0));
+            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
             return makeConstraint(lhs, rhs, ConstraintType::kLoad);
         }
 
@@ -127,7 +127,7 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
                 return kInvalidConstraint;
             }
 
-            NodeIndex lhs = getTable().getPointerNode(instruction->getOperand(1));
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction->getOperand(1));
             NodeIndex rhs = getTable().getNode(instruction->getOperand(0));
             return makeConstraint(lhs, rhs, ConstraintType::kStore);
         }
