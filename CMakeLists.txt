@@ -25,6 +25,8 @@ add_subdirectory(./src)
 add_subdirectory(./samples)
 add_subdirectory(./tests)
 
+add_points_to_library()
+
 file (GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.ll)
 
 # set(args -S -c -emit-llvm -w)
