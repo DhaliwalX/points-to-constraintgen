@@ -23,9 +23,11 @@ add_definitions(${LLVM_DEFINITIONS})
 add_subdirectory(./include)
 add_subdirectory(./src)
 add_subdirectory(./samples)
+add_points_to_library()
 add_subdirectory(./tests)
 
-add_points_to_library()
+set(POINTS_TO_SOURCE_FILES ${POINTS_TO_SOURCE_FILES} PARENT_SCOPE)
+
 
 file (GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.ll)
 

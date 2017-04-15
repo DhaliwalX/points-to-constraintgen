@@ -46,6 +46,11 @@ public:
     Constraint getConstraint(llvm::Instruction *instruction);
 
     /**
+     * \return Generates ID for an Argument
+     */
+    NodeIndex generateIdForArgument(llvm::Argument *arg);
+
+    /**
      * \return PointerSymbolTable
      */
     PointerSymbolTable &getTable() {

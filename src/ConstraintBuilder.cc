@@ -21,6 +21,13 @@ Constraint ConstraintBuilder::getConstraint(llvm::Instruction *instruction) {
     return generateFromInstruction(instruction);
 }
 
+NodeIndex ConstraintBuilder::generateIdForArgument(Argument *arg) {
+    if (arg->getType()->isPointerTy())
+        return getTable().getOrCreatePointerNode(arg);
+    else
+        return getTable().getOrCreateObjectNode(arg);
+}
+
 Constraint ConstraintBuilder::processGetElementPtrNode(GetElementPtrInst *instruction)
 {
     NodeIndex id;
