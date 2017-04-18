@@ -135,7 +135,7 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             }
 
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction->getOperand(1));
-            NodeIndex rhs = getTable().getNode(instruction->getOperand(0));
+            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
             return makeConstraint(lhs, rhs, ConstraintType::kStore);
         }
 
@@ -172,7 +172,7 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             }
 
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex rhs = getTable().getNode(instruction->getOperand(0));
+            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
             return makeConstraint(lhs, rhs, ConstraintType::kCopy);
         }
 
@@ -183,8 +183,8 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             }
 
             auto select = cast<SelectInst>(instruction);
-            NodeIndex t = getTable().getNode(select->getTrueValue());
-            NodeIndex f = getTable().getNode(select->getFalseValue());
+            NodeIndex t = getTable().getOrCreatePointerNode(select->getTrueValue());
+            NodeIndex f = getTable().getOrCreatePointerNode(select->getFalseValue());
 
             NodeIndex rhs = getTable().createNode(instruction);
             PointsToNode *selectNode = getTable().getValue(rhs);
