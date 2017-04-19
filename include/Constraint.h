@@ -27,7 +27,6 @@ enum class ConstraintType {
     kLoad,      /* e.g. %a = load %type*, %type** %b,  in C as `a = *b` */
     kStore,     /* e.g. store %type* %b, %type** %a,   in C as `*a = b` */
     kCopy,      /* e.g. %a = getelementptr %type, %type* %b, in C as `a = b` */
-    kReturn
 };
 
 /**
@@ -44,9 +43,11 @@ public:
      * \param dest the destination node i.e. lhs
      * \param source the source node i.e. rhs
      * \param type type of the constraint i.e. one of ConstraintType
+     * \param val pointer to the llvm Instruction or Value
      */
-    Constraint(NodeIndex dest, NodeIndex source, ConstraintType type)
-        : type_{ type }, source_{ source }, dest_{ dest }
+    Constraint(NodeIndex dest, NodeIndex source, ConstraintType type,
+                    llvm::Value *val = nullptr)
+        : type_{ type }, source_{ source }, dest_{ dest }, val_{ val }
     { }
 
     /**
@@ -55,7 +56,7 @@ public:
      *
      * \return id of the destination node
      */
-    NodeIndex getDestination() const {
+    NodeIndex getLHSId() const {
         return dest_;
     }
 
@@ -64,7 +65,7 @@ public:
      *
      * \return id of the source node
      */
-    NodeIndex getSource() const {
+    NodeIndex getRHSId() const {
         return source_;
     }
 
@@ -84,37 +85,47 @@ public:
 
     /**
      * More useful method for getting the pointer to the LHS node directly
-     * \returns pointer to the PointsToNode object
+     * \return pointer to the PointsToNode object
      */
     PointsToNode *getLHSNode();
     PointsToNode *getLHSNode() const;
 
     /**
      * More useful method for getting the pointer to the RHS node directly
-     * \returns pointer to the PointsToNode object
+     * \return pointer to the PointsToNode object
      */
     PointsToNode *getRHSNode();
     PointsToNode *getRHSNode() const;
+
+
+    /**
+     * \return llvm Instruction or Value pointer from which this constraint
+     *          has been generated
+     */
+    llvm::Value *getLLVMValue() const {
+        return val_;
+    }
 private:
     ConstraintType type_;
     NodeIndex source_;
     NodeIndex dest_;
+    llvm::Value *val_; // value from which this constraint has been generated
 };
 
 /**
  * operator< defined for storing the constraint in a map
  */
 static inline bool operator<(const Constraint &lhs, const Constraint &rhs) {
-    return lhs.getSource() < rhs.getSource()
-                || lhs.getDestination() < rhs.getDestination();
+    return lhs.getRHSId() < rhs.getRHSId()
+                || lhs.getLHSId() < rhs.getLHSId();
 }
 
 /**
  * To compare two Constraint objects
  */
 static inline bool operator==(const Constraint &lhs, const Constraint &rhs) {
-    return lhs.getSource() == rhs.getSource()
-            && lhs.getDestination() == rhs.getDestination()
+    return lhs.getRHSId() == rhs.getRHSId()
+            && lhs.getLHSId() == rhs.getLHSId()
             && lhs.getType() == rhs.getType();
 }
 

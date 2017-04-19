@@ -8,16 +8,12 @@ using namespace llvm;
 
 namespace ptsto {
 
-PointsToConstraints &ConstraintBuilder::getConstraints() {
-    return constraints_;
-}
-
 Constraint ConstraintBuilder::makeConstraint(NodeIndex lhs, NodeIndex rhs,
                                             ConstraintType type) {
     return Constraint(lhs, rhs, type);
 }
 
-Constraint ConstraintBuilder::getConstraint(llvm::Instruction *instruction) {
+std::vector<Constraint> ConstraintBuilder::getConstraint(llvm::Instruction *instruction) {
     return generateFromInstruction(instruction);
 }
 
@@ -28,8 +24,10 @@ NodeIndex ConstraintBuilder::generateIdForArgument(Argument *arg) {
         return getTable().getOrCreateObjectNode(arg);
 }
 
-Constraint ConstraintBuilder::processGetElementPtrNode(GetElementPtrInst *instruction)
+std::vector<Constraint>
+    ConstraintBuilder::processGetElementPtrNode(GetElementPtrInst *instruction)
 {
+    std::vector<Constraint> ret;
     NodeIndex id;
 
     User::op_iterator i = instruction->idx_begin(),
@@ -50,34 +48,37 @@ Constraint ConstraintBuilder::processGetElementPtrNode(GetElementPtrInst *instru
     }
 
     NodeIndex lhs = getTable().createPointerNode(instruction);
-    return makeConstraint(lhs, rhs, ConstraintType::kAddressOf);
+    ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kAddressOf));
+    return ret;
 }
 
-Constraint ConstraintBuilder::processCallInstruction(CallInst *instruction) {
+std::vector<Constraint> ConstraintBuilder::processCallInstruction(CallInst *instruction) {
     NodeIndex id;
 
-    User::op_iterator i = instruction->arg_begin(),
-                      e = instruction->arg_end();
+    // User::op_iterator i = instruction->arg_begin(),
+    //                   e = instruction->arg_end();
 
-    NodeIndex rhs = getTable().createNode(instruction);
-    PointsToNode *callNode = getTable().getValue(rhs);
+    // NodeIndex rhs = getTable().createNode(instruction);
+    // PointsToNode *callNode = getTable().getValue(rhs);
 
-    // get the id of the main pointer operand in the getelementptr
-    id = getTable().getNode(instruction->getOperand(0));
-    callNode->use_push_back(id);
+    // // get the id of the main pointer operand in the getelementptr
+    // id = getTable().getNode(instruction->getOperand(0));
+    // callNode->use_push_back(id);
 
-    for (; i != e; ++i) {
-        Use *u = i;
+    // for (; i != e; ++i) {
+    //     Use *u = i;
 
-        id = getTable().getOrCreateObjectNode(u->get());
-        callNode->use_push_back(id);
-    }
+    //     id = getTable().getOrCreateObjectNode(u->get());
+    //     callNode->use_push_back(id);
+    // }
 
-    NodeIndex lhs = getTable().createPointerNode(instruction);
-    return makeConstraint(lhs, rhs, ConstraintType::kCopy);
+    // NodeIndex lhs = getTable().createPointerNode(instruction);
+    // return makeConstraint(lhs, rhs, ConstraintType::kCopy);
+    return {};
 }
 
-Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
+std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *instruction) {
+    std::vector<Constraint> ret;
     // for simplicity using switch-case instead of visitor pattern
     switch (instruction->getOpcode()) {
         case Instruction::Alloca:
@@ -91,23 +92,21 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             NodeIndex rhs;
             rhs = getTable().createDummyNode(dyn_cast<AllocaInst>(instruction));
             NodeIndex lhs = getTable().createPointerNode(instruction);
-            return makeConstraint(lhs, rhs, ConstraintType::kAddressOf);
+            ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kAddressOf));
+            break;
         }
 
         case Instruction::Call:
         case Instruction::Invoke:
         {
-            return processCallInstruction(cast<CallInst>(instruction));
+            // not handling this case
+            // return processCallInstruction(cast<CallInst>(instruction));
         }
 
         case Instruction::Ret:
         {
-            if (!instruction->getType()->isPointerTy()) {
-                return kInvalidConstraint;
-            }
-            NodeIndex lhs = getTable().getOrCreatePointerNode(nullptr);
-            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
-            return makeConstraint(lhs, rhs, ConstraintType::kReturn);
+            // not handling, as this is more related to the analysis
+            break;
         }
 
 
@@ -118,24 +117,26 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             // is a pointer type.
             //   example, %a = load i32*, i32** %b
             if (!instruction->getType()->isPointerTy()) {
-                return kInvalidConstraint;
+                break;
             }
 
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
             NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
-            return makeConstraint(lhs, rhs, ConstraintType::kLoad);
+            ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kLoad));
+            break;
         }
 
         case Instruction::Store:
         {
             // example, store i32* %a, i32** %b
             if (!instruction->getOperand(0)->getType()->isPointerTy()) {
-                return kInvalidConstraint;
+                break;
             }
 
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction->getOperand(1));
             NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
-            return makeConstraint(lhs, rhs, ConstraintType::kStore);
+            ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kStore));
+            break;
         }
 
         case Instruction::GetElementPtr:
@@ -147,50 +148,45 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
         case Instruction::PHI:
         {
             if (!instruction->getType()->isPointerTy())
-                return kInvalidConstraint;
+                break;
 
             auto phi = dyn_cast<PHINode>(instruction);
 
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex rhs = getTable().createNode(instruction);
-
-            PointsToNode *rhsNode = getTable().getValue(rhs);
 
             for (unsigned i = 0, e = phi->getNumIncomingValues(); i != e;
                 i++) {
-                NodeIndex rhsUse = getTable().getNode(phi->getIncomingValue(i));
-                rhsNode->use_push_back(rhsUse);
+                NodeIndex rhs = getTable().getOrCreatePointerNode(phi->getIncomingValue(i));
+                ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
             }
-            return makeConstraint(lhs, rhs, ConstraintType::kCopy);
+            break;
         }
 
         case Instruction::BitCast:
         {
             if (!instruction->getType()->isPointerTy()) {
-                return kInvalidConstraint;
+                break;
             }
 
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
             NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
-            return makeConstraint(lhs, rhs, ConstraintType::kCopy);
+            ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
+            break;
         }
 
         case Instruction::Select:
         {
             if (!instruction->getType()->isPointerTy()) {
-                return kInvalidConstraint;
+                break;
             }
 
             auto select = cast<SelectInst>(instruction);
             NodeIndex t = getTable().getOrCreatePointerNode(select->getTrueValue());
             NodeIndex f = getTable().getOrCreatePointerNode(select->getFalseValue());
-
-            NodeIndex rhs = getTable().createNode(instruction);
-            PointsToNode *selectNode = getTable().getValue(rhs);
-            selectNode->use_push_back(t);
-            selectNode->use_push_back(f);
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            return makeConstraint(lhs, rhs, ConstraintType::kCopy);
+            ret.push_back(makeConstraint(lhs, t, ConstraintType::kCopy));
+            ret.push_back(makeConstraint(lhs, f, ConstraintType::kCopy));
+            break;
         }
 
         case Instruction::IntToPtr:
@@ -205,13 +201,11 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
         default:
         {
             //TODO
-            errs() << "instruction not implemented: ";
-            instruction->dump();
-            return kInvalidConstraint;
+            break;
         }
+    } // switch
 
-
-    }
+    return ret;
 }
 
 }

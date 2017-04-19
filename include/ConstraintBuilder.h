@@ -36,14 +36,9 @@ public:
     ConstraintBuilder() = default;
 
     /**
-     * \return reference to the PointsToConstraints object
+     * \return list of Constraint objects for single LLVM IR statement
      */
-    PointsToConstraints &getConstraints();
-
-    /**
-     * \return Single Constraint object for single LLVM IR statement
-     */
-    Constraint getConstraint(llvm::Instruction *instruction);
+    std::vector<Constraint> getConstraint(llvm::Instruction *instruction);
 
     /**
      * \return Generates ID for an Argument
@@ -64,7 +59,7 @@ private:
      * \param instruction pointer to llvm::CallInst object
      * \return a Constraint object
      */
-    Constraint processCallInstruction(llvm::CallInst *instruction);
+    std::vector<Constraint> processCallInstruction(llvm::CallInst *instruction);
 
     /**
      * Method for processing getelementptr instructions
@@ -72,7 +67,7 @@ private:
      * \param instruction pointer to llvm::GetElementPtrInst object
      * \return a Constraint object
      */
-    Constraint processGetElementPtrNode(llvm::GetElementPtrInst* instruction);
+    std::vector<Constraint> processGetElementPtrNode(llvm::GetElementPtrInst* instruction);
 
     /**
      * More general method for generating constraint from an instruction
@@ -80,7 +75,7 @@ private:
      * \param instruction pointer to llvm::Instruction object
      * \return a Constraint object
      */
-    Constraint generateFromInstruction(llvm::Instruction *instruction);
+    std::vector<Constraint> generateFromInstruction(llvm::Instruction *instruction);
 
     /// TODO: remove this method as it is longer used
     void addConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);

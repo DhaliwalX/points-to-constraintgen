@@ -5,7 +5,6 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "ConstraintBuilder.h"
-#include "DotGraph.h"
 
 using namespace llvm;
 using namespace ptsto;
@@ -32,12 +31,10 @@ struct ConstraintGen : public ModulePass {
         for (Function &f : module) {
             for (BasicBlock &bb : f) {
                  for (Instruction &i : bb) {
-                    Constraint c = builder.getConstraint(&i);
-                    if (c == kInvalidConstraint) {
-                        continue;
-                    }
+                    auto constraints = builder.getConstraint(&i);
 
-                    constraints_.push_back(c);
+                    for (auto &constraint : constraints)
+                        constraints_.push_back(constraint);
                 }
             }
         }

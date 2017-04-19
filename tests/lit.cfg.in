@@ -15,7 +15,7 @@ config.test_format = formats.ShTest(True)
 # by individual lit.local.cfg files in the test subdirectories.
 config.suffixes = ['.ll', '.c', '.cpp', '.test', '.txt', '.s']
 
-config.excludes = ['CMakeCache.txt', 'CMakeFiles', 'CMakeLists.txt', 'ConstraintGenPass', 'googletest', 'TestPass.cc']
+config.excludes = ['CMakeCache.txt', 'CMakeFiles', 'CMakeLists.txt', 'ConstraintGenPass', 'googletest', 'TestPass.cc', 'BasicPointsToAnalysis']
 
 config.substitutions.append(('%bindir', build_root))
 

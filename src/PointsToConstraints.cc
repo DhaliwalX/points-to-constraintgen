@@ -13,8 +13,8 @@ std::set<NodeIndex> PointsToConstraints::getPointees(NodeIndex node) const {
 
     for (const auto &constraint : constraints_) {
         if (constraint.getType() == ConstraintType::kAddressOf
-            && constraint.getSource() == node) {
-            result.insert(constraint.getDestination());
+            && constraint.getLHSId() == node) {
+            result.insert(constraint.getRHSId());
         }
     }
 
