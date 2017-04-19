@@ -88,7 +88,6 @@ Constraint ConstraintBuilder::generateFromInstruction(Instruction *instruction) 
             //      %a = alloca i32
             //   here a is lhs and alloca i32 is a temporary object whose address
             //   being assigned to a
-            errs() << "Alloca Type: ";
             NodeIndex rhs;
             rhs = getTable().createDummyNode(dyn_cast<AllocaInst>(instruction));
             NodeIndex lhs = getTable().createPointerNode(instruction);
