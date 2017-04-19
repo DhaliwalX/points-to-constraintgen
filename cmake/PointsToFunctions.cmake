@@ -2,7 +2,7 @@ set(output_dir "${CMAKE_BINARY_DIR}/lib")
 
 function(add_points_to_project project_name sources)
     set(all_sources ${POINTS_TO_SOURCE_FILES} ${sources})
-    add_library(${project_name} MODULE ${all_sources} ${POINTS_TO_SOURCE_FILES})
+    add_library(${project_name} MODULE ${all_sources})
 
     target_compile_features(${project_name} PRIVATE cxx_range_for
         cxx_auto_type)
@@ -18,7 +18,8 @@ function(add_points_to_library)
     set_target_properties(pointsto PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY "${output_dir}")
 
-
     target_compile_features(pointsto PRIVATE cxx_range_for
         cxx_auto_type)
+
+    set_target_properties(pointsto PROPERTIES COMPILE_FLAGS "-fno-rtti -g -fPIC")
 endfunction(add_points_to_library)
