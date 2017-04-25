@@ -197,21 +197,29 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
 
             auto extract = cast<ExtractValueInst>(instruction);
             NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex val = getTable().getOrCreateObjectNode(instruction->getOperand(0));
-            NodeIndex rhs = getTable().createNode(instruction);
+            NodeIndex rhs = getTable().getOrCreateObjectNode(extract->getAggregateOperand());
             PointsToNode *node = getTable().getValue(rhs);
-            node->use_push_back(val);
 
             for (auto &index : extract->indices()) {
-                NodeIndex i = getTable().getOrCreateObjectNode(index);
-                node->use_push_back(i);
+                node->use_push_back(index);
             }
             ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
         } break;
 
         case Instruction::InsertValue:
         {
+            auto insert = cast<InsertValueInst>(instruction);
+            if (!insert->getInsertedValueOperand()->getType()->isPointerTy())
+                break;
 
+            NodeIndex lhs = getTable().getOrCreateObjectNode(instruction);
+            PointsToNode *node = getTable().getValue(lhs);
+
+            for (auto &index : insert->indices()) {
+                node->use_push_back(index);
+            }
+            NodeIndex rhs = getTable().getOrCreatePointerNode(insert->getInsertedValueOperand());
+            ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
         } break;
 
         case Instruction::IntToPtr:
