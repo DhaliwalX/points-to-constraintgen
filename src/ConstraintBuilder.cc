@@ -188,12 +188,35 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
             ret.push_back(makeConstraint(lhs, f, ConstraintType::kCopy));
             break;
         }
+        
+        case Instruction::ExtractValue:
+        {
+            if (!instruction->getType()->isPointerTy()) {
+                break;
+            }
+
+            auto extract = cast<ExtractValueInst>(instruction);
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
+            NodeIndex val = getTable().getOrCreateObjectNode(instruction->getOperand(0));
+            NodeIndex rhs = getTable().createNode(instruction);
+            PointsToNode *node = getTable().getValue(rhs);
+            node->use_push_back(val);
+
+            for (auto &index : extract->indices()) {
+                NodeIndex i = getTable().getOrCreateObjectNode(index);
+                node->use_push_back(i);
+            }
+            ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
+        } break;
+
+        case Instruction::InsertValue:
+        {
+
+        } break;
 
         case Instruction::IntToPtr:
         case Instruction::PtrToInt:
         case Instruction::VAArg:
-        case Instruction::ExtractValue:
-        case Instruction::InsertValue:
         case Instruction::LandingPad:
         case Instruction::Resume:
         case Instruction::AtomicRMW:
