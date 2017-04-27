@@ -1,0 +1,10 @@
+Create a separate doc for gettign started with llvm
+introduction and details about library
+ - introduction
+   - motivation
+ - constraintgen library
+   - constraints and their generation
+ - Pritam;s GPG analysis
+ - GPG implementation & usage
+ - Conclusion
+
