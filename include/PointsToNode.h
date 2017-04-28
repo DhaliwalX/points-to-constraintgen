@@ -46,21 +46,13 @@ public:
     static PointerSymbolTable *table_;
 
     /**
-     * Type can be of two forms: Pointer or Non-Pointer
-     */
-    enum class Type {
-        kNonPointer,
-        kPointer
-    };
-
-    /**
      * Constructor
      *
      * \param value Pointer to the llvm::Value node, can be null in case of dummy
      * \param type Type of this node as above
      * \param id Id of the pointer
      */
-    PointsToNode(llvm::Value *value, Type type, NodeIndex id)
+    PointsToNode(llvm::Value *value, llvm::Type *type, NodeIndex id)
         : value_{ value }, type_{ type }, id_{ id }
     { }
 
@@ -78,45 +70,45 @@ public:
      *
      * \return type of this node, IMPORTANT: this is different from llvm::Type
      */
-    Type getType() {
+    llvm::Type *getType() {
         return type_;
     }
 
-    /**
-     * Set the type of this node
-     *
-     * \param t one of enum PointsToNode::Type
-     */
-    void setType(Type t) {
-        type_ = t;
-    }
+    // *
+    //  * Set the type of this node
+    //  *
+    //  * \param t one of enum PointsToNode::Type
+     
+    // void setType(Type t) {
+    //     type_ = t;
+    // }
 
     /**
      * \return true if this node is a struct or field of a struct
      */
     bool hasStructTy() const {
-        return value_->getType()->isStructTy();
+        return type_->isStructTy();
     }
 
     /**
      * \return true if this node is an array or a member of an array
      */
     bool hasArrayTy() const {
-        return value_->getType()->isArrayTy();
+        return type_->isArrayTy();
     }
 
     /**
      * \return true if this node represents an llvm::Value which has pointer type.
      */
     bool hasPointerTy() const {
-        return value_->getType()->isPointerTy();
+        return type_->isPointerTy();
     }
 
     /**
      * \return llvm::Type* type of the underlying llvm::Value
      */
     llvm::Type *getLLVMType() {
-        return value_->getType();
+        return type_;
     }
 
     /**
@@ -124,13 +116,6 @@ public:
      */
     NodeIndex getId() const {
         return id_;
-    }
-
-    /**
-     * \param id id which you want to set
-     */
-    void setId(NodeIndex id) {
-        id_ = id;
     }
 
     /**
@@ -222,8 +207,7 @@ public:
 protected:
     // pointer to llvm value node
     llvm::Value *value_;
-    bool is_gep_node_;
-    Type type_;
+    llvm::Type *type_;
 
     // what else values does this node uses. non empty in case of getelementptr
     std::vector<NodeIndex> uses_;

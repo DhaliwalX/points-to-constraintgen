@@ -18,10 +18,7 @@ std::vector<Constraint> ConstraintBuilder::getConstraint(llvm::Instruction *inst
 }
 
 NodeIndex ConstraintBuilder::generateIdForArgument(Argument *arg) {
-    if (arg->getType()->isPointerTy())
-        return getTable().getOrCreatePointerNode(arg);
-    else
-        return getTable().getOrCreateObjectNode(arg);
+    return getTable().getOrCreatePointerNode(arg, arg->getType());
 }
 
 std::vector<Constraint>
@@ -33,21 +30,21 @@ std::vector<Constraint>
     User::op_iterator i = instruction->idx_begin(),
                       e = instruction->idx_end();
 
-    NodeIndex rhs = getTable().createNode(instruction);
+    NodeIndex rhs = getTable().createDummyNode(instruction);
     PointsToNode *gepNode = getTable().getValue(rhs);
 
     // get the id of the main pointer operand in the getelementptr
-    id = getTable().getNode(instruction->getOperand(0));
+    id = getTable().getOrCreatePointerNode(instruction->getOperand(0), instruction->getType());
     gepNode->use_push_back(id);
 
     for (; i != e; ++i) {
         Use *u = i;
 
-        id = getTable().getOrCreateObjectNode(u->get());
+        id = getTable().getOrCreatePointerNode(u->get(), u->get()->getType());
         gepNode->use_push_back(id);
     }
 
-    NodeIndex lhs = getTable().createPointerNode(instruction);
+    NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
     ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kAddressOf));
     return ret;
 }
@@ -91,7 +88,7 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
             //   being assigned to a
             NodeIndex rhs;
             rhs = getTable().createDummyNode(dyn_cast<AllocaInst>(instruction));
-            NodeIndex lhs = getTable().createPointerNode(instruction);
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
             ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kAddressOf));
             break;
         }
@@ -120,8 +117,8 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
                 break;
             }
 
-            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
+            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0), instruction->getOperand(0)->getType());
             ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kLoad));
             break;
         }
@@ -133,8 +130,8 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
                 break;
             }
 
-            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction->getOperand(1));
-            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction->getOperand(1), instruction->getOperand(1)->getType());
+            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0), instruction->getOperand(0)->getType());
             ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kStore));
             break;
         }
@@ -152,11 +149,11 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
 
             auto phi = dyn_cast<PHINode>(instruction);
 
-            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
 
             for (unsigned i = 0, e = phi->getNumIncomingValues(); i != e;
                 i++) {
-                NodeIndex rhs = getTable().getOrCreatePointerNode(phi->getIncomingValue(i));
+                NodeIndex rhs = getTable().getOrCreatePointerNode(phi->getIncomingValue(i), phi->getIncomingValue(i)->getType());
                 ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
             }
             break;
@@ -168,8 +165,8 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
                 break;
             }
 
-            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0));
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
+            NodeIndex rhs = getTable().getOrCreatePointerNode(instruction->getOperand(0), instruction->getOperand(0)->getType());
             ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
             break;
         }
@@ -181,9 +178,9 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
             }
 
             auto select = cast<SelectInst>(instruction);
-            NodeIndex t = getTable().getOrCreatePointerNode(select->getTrueValue());
-            NodeIndex f = getTable().getOrCreatePointerNode(select->getFalseValue());
-            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
+            NodeIndex t = getTable().getOrCreatePointerNode(select->getTrueValue(), instruction->getType());
+            NodeIndex f = getTable().getOrCreatePointerNode(select->getFalseValue(), instruction->getType());
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
             ret.push_back(makeConstraint(lhs, t, ConstraintType::kCopy));
             ret.push_back(makeConstraint(lhs, f, ConstraintType::kCopy));
             break;
@@ -196,8 +193,8 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
             }
 
             auto extract = cast<ExtractValueInst>(instruction);
-            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction);
-            NodeIndex rhs = getTable().getOrCreateObjectNode(extract->getAggregateOperand());
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
+            NodeIndex rhs = getTable().getOrCreatePointerNode(extract->getAggregateOperand(), instruction->getType());
             PointsToNode *node = getTable().getValue(rhs);
 
             for (auto &index : extract->indices()) {
@@ -212,13 +209,13 @@ std::vector<Constraint> ConstraintBuilder::generateFromInstruction(Instruction *
             if (!insert->getInsertedValueOperand()->getType()->isPointerTy())
                 break;
 
-            NodeIndex lhs = getTable().getOrCreateObjectNode(instruction);
+            NodeIndex lhs = getTable().getOrCreatePointerNode(instruction, instruction->getType());
             PointsToNode *node = getTable().getValue(lhs);
 
             for (auto &index : insert->indices()) {
                 node->use_push_back(index);
             }
-            NodeIndex rhs = getTable().getOrCreatePointerNode(insert->getInsertedValueOperand());
+            NodeIndex rhs = getTable().getOrCreatePointerNode(insert->getInsertedValueOperand(), insert->getInsertedValueOperand()->getType());
             ret.push_back(makeConstraint(lhs, rhs, ConstraintType::kCopy));
         } break;
 

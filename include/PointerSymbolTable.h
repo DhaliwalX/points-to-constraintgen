@@ -37,16 +37,16 @@ public:
      * \param val pointer to the llvm::Value object
      * \return id of the newly created node
      */
-    NodeIndex createPointerNode(llvm::Value *val);
+    NodeIndex createPointerNode(llvm::Value *val, llvm::Type *type);
 
-    /**
-     * creates a node representing a non-pointer llvm::Value and returns an index
-     * for future reference
-     *
-     * \param val pointer to the llvm::Value object
-     * \return id of the newly created node
-     */
-    NodeIndex createObjectNode(llvm::Value *val);
+    // *
+    //  * creates a node representing a non-pointer llvm::Value and returns an index
+    //  * for future reference
+    //  *
+    //  * \param val pointer to the llvm::Value object
+    //  * \return id of the newly created node
+     
+    // NodeIndex createObjectNode(llvm::Value *val);
 
     /**
      * returns the index of previously created node corresponding
@@ -56,56 +56,56 @@ public:
      * \param val pointer to the llvm::Value object
      * \return id of the newly created node
      */
-    NodeIndex getOrCreatePointerNode(llvm::Value *val);
+    NodeIndex getOrCreatePointerNode(llvm::Value *val, llvm::Type* type);
 
-    /**
-     * returns the index of previously created node corresponding
-     * to the `val`. If there is no such node, then creates one
-     * This node should refer to an llvm::Value that has non-pointer type.
-     *
-     * \param val pointer to the llvm::Value object
-     * \return id of the old or newly created node
-     */
-    NodeIndex getOrCreateObjectNode(llvm::Value *val);
+    // /**
+    //  * returns the index of previously created node corresponding
+    //  * to the `val`. If there is no such node, then creates one
+    //  * This node should refer to an llvm::Value that has non-pointer type.
+    //  *
+    //  * \param val pointer to the llvm::Value object
+    //  * \return id of the old or newly created node
+    //  */
+    // NodeIndex getOrCreateObjectNode(llvm::Value *val);
 
-    /**
-     * returns the index of previously created node corresponding to the `val`
-     *
-     * \param val pointer to the llvm::Value object which should have pointer type
-     * \return id of the node
-     */
-    NodeIndex getPointerNode(llvm::Value *val);
+    // /**
+    //  * returns the index of previously created node corresponding to the `val`
+    //  *
+    //  * \param val pointer to the llvm::Value object which should have pointer type
+    //  * \return id of the node
+    //  */
+    // NodeIndex getPointerNode(llvm::Value *val);
 
-    /**
-     * returns the index of previously created node corresponding to the `val`
-     *
-     * \param val pointer to the llvm::Value object which should have non pointer type
-     * \return id of the node
-     */
-    NodeIndex getObjectNode(llvm::Value *val);
+    // /**
+    //  * returns the index of previously created node corresponding to the `val`
+    //  *
+    //  * \param val pointer to the llvm::Value object which should have non pointer type
+    //  * \return id of the node
+    //  */
+    // NodeIndex getObjectNode(llvm::Value *val);
 
-    /**
-     * returns the index of the node with respect to the type
-     *
-     * \param val pointer to an llvm::Value object
-     * \param type type of the node that is being expected
-     * \return id of the node
-     */
-    NodeIndex getNode(llvm::Value *val, PointsToNode::Type type);
+    // *
+    //  * returns the index of the node with respect to the type
+    //  *
+    //  * \param val pointer to an llvm::Value object
+    //  * \param type type of the node that is being expected
+    //  * \return id of the node
+     
+    // NodeIndex getNode(llvm::Value *val, PointsToNode::Type type);
 
-    /**
-     * More general method for searching node for an llvm::Value. It tries to locate
-     * the node in the symbol table using type of val
-     *
-     * \param val pointer to an llvm::Value object
-     * \return id of the node
-     */
-    NodeIndex getNode(llvm::Value *val);
+    // /**
+    //  * More general method for searching node for an llvm::Value. It tries to locate
+    //  * the node in the symbol table using type of val
+    //  *
+    //  * \param val pointer to an llvm::Value object
+    //  * \return id of the node
+    //  */
+    // NodeIndex getNode(llvm::Value *val);
 
-    /**
-     * creates a new node
-     */
-    NodeIndex createNode(llvm::Value *val);
+    // /**
+    //  * creates a new node
+    //  */
+    // NodeIndex createNode(llvm::Value *val);
 
     /**
      * returns the size of the symbol table
@@ -124,17 +124,18 @@ public:
      */
     NodeIndex createDummyNode(llvm::AllocaInst *inst);
 
+    /**
+     * creates a dummy node for other instructions
+     */
+    NodeIndex createDummyNode(llvm::Instruction *inst);
 private:
     NodeIndex getNode(std::map<llvm::Value*, NodeIndex> &map, llvm::Value *val);
     NodeIndex createNode(std::map<llvm::Value*, NodeIndex> &map,
                         llvm::Value *val,
-                        PointsToNode::Type type);
+                        llvm::Type *type);
 
     // keeps track of pointers
     std::map<llvm::Value*, NodeIndex> pointerMap_;
-
-    // it keeps track of objects whose address is being used
-    std::map<llvm::Value*, NodeIndex> objectMap_;
 
     std::vector<PointsToNode> nodes_;
 };
