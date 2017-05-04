@@ -43,7 +43,7 @@ public:
     /**
      * \return Generates ID for an Argument
      */
-    NodeIndex generateIdForArgument(llvm::Argument *arg);
+    NodeIndex generateId(llvm::Value *val);
 
     /**
      * \return PointerSymbolTable
@@ -51,6 +51,17 @@ public:
     PointerSymbolTable &getTable() {
         return *PointsToNode::table_;
     }
+
+    /**
+     * creates and returns a Constraint object
+     *
+     * \param lhs id of lhs node
+     * \param rhs id of rhs node
+     * \param type type of the Constraint
+     * \return a Constraint object
+     */
+    Constraint makeConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);
+
 private:
 
     /**
@@ -79,16 +90,6 @@ private:
 
     /// TODO: remove this method as it is longer used
     void addConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);
-
-    /**
-     * creates and returns a Constraint object
-     *
-     * \param lhs id of lhs node
-     * \param rhs id of rhs node
-     * \param type type of the Constraint
-     * \return a Constraint object
-     */
-    Constraint makeConstraint(NodeIndex lhs, NodeIndex rhs, ConstraintType type);
 
     // This will hold all the points-to constraints
     PointsToConstraints constraints_;

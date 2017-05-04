@@ -17,8 +17,8 @@ std::vector<Constraint> ConstraintBuilder::getConstraint(llvm::Instruction *inst
     return generateFromInstruction(instruction);
 }
 
-NodeIndex ConstraintBuilder::generateIdForArgument(Argument *arg) {
-    return getTable().getOrCreatePointerNode(arg, arg->getType());
+NodeIndex ConstraintBuilder::generateId(Value *val) {
+    return getTable().getOrCreatePointerNode(val, val->getType());
 }
 
 std::vector<Constraint>
