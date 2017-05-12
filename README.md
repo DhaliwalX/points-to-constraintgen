@@ -43,7 +43,7 @@ There is a test pass built using this library in the tests/ directory.
 You can use the opt tools provided by LLVM to run the pass.
 
 ```bash
-opt -load <build-dir>/lib/libTestPass.so -test-pass -analyze
+opt -load <build-dir>/lib/libTestPass.so -test-pass -analyze a.ll
 ```
 
 You can test the pass using `check` target as
