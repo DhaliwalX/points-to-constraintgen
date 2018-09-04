@@ -26,6 +26,12 @@ install:
       travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
       export PATH=${DEPS_DIR}/cmake/bin:${PATH}
     fi
-  
+
+script:
+  - mkdir -p build
+  - cd build
+  - cmake ..
+  - make
+
 before_install:
   - eval "${MATRIX_EVAL}"
