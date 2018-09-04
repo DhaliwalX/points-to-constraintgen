@@ -8,16 +8,12 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-4.0
-            - george-edison55-precise-backports
           packages:
             - clang-4.0
-            - cmake
-            - cmake-data
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
 
     
 before_install:
   - eval "${MATRIX_EVAL}"
-
-script:
+  - curl https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh | bash
