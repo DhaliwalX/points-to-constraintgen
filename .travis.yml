@@ -16,4 +16,6 @@ matrix:
     
 before_install:
   - eval "${MATRIX_EVAL}"
-  - curl https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh | bash
+  - wget https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.tar.gz
+  - tar -xf cmake-3.12.1-Linux-x86_64.tar.xz
+  - export PATH=$PATH:cmake-3.12.1-Linux-x86_64/bin
