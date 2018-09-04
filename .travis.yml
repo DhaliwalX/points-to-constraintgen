@@ -7,15 +7,13 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
+
+          packages:
+            - build-essential
       env:
-        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
 
     
 before_install:
-  - sudo apt-get install -y curl
-  - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-  - sudo apt-add-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main"
-  - sudo apt-get update
-  - sudo apt-get install -y clang-4.0
   - eval "${MATRIX_EVAL}"
   - curl https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh | bash
