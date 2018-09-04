@@ -1,5 +1,10 @@
 language: cpp
 compiler: clang
+env:
+  global:
+    - LINUX_DIST=trusty
+    - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
+
 matrix:
   include:
     - os: linux
@@ -13,9 +18,14 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++"
 
-    
+install:
+  - |
+    if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
+      CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.1-Linux-x86_64.tar.gz"
+      mkdir -p ${DEPS_DIR}/cmake
+      travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    fi
+  
 before_install:
   - eval "${MATRIX_EVAL}"
-  - wget https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.tar.gz
-  - tar -xf cmake-3.12.1-Linux-x86_64.tar.xz
-  - export PATH=$PATH:cmake-3.12.1-Linux-x86_64/bin
