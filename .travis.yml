@@ -32,6 +32,13 @@ script:
   - cd build
   - cmake ..
   - make
+  - opt -load lib/libTestPass.so -test-pass -analyze ../tests/test1.ll
+  - opt -load lib/libTestPass.so -test-pass -analyze ../tests/test2.ll
+  - opt -load lib/libTestPass.so -test-pass -analyze ../tests/test3.ll
+  - opt -load lib/libTestPass.so -test-pass -analyze ../tests/test4.ll
+  - opt -load lib/libTestPass.so -test-pass -analyze ../tests/test5.ll
+  - opt -load lib/libTestPass.so -test-pass -analyze ../tests/test6.ll
+  - opt -load lib/libTestPass.so -test-pass -analyze ../tests/test7.ll
 
 before_install:
   - eval "${MATRIX_EVAL}"
