@@ -36,7 +36,7 @@ void PointerSymbolTable::dump(llvm::raw_ostream &os) const {
         os << node.getId() << ": ";
 
         if (!node.isDummy()) {
-            node.getValue()->dump();
+            os << node.getValue();
         } else {
             os << "DummyNode\n";
         }
